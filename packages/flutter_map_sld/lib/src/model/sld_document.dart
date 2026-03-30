@@ -1,4 +1,5 @@
 import '_equality.dart';
+import '../parser/sld_parser.dart' as parser;
 import 'issue.dart';
 import 'layer.dart';
 import 'raster_symbolizer.dart';
@@ -9,6 +10,19 @@ class SldDocument {
     this.version,
     required List<SldLayer> layers,
   }) : layers = List.unmodifiable(layers);
+
+  /// Parses an SLD/SE XML string.
+  ///
+  /// Returns an [SldParseResult] with the parsed document and any issues.
+  /// Invalid XML is reported as an error issue; the document will be `null`.
+  static SldParseResult parseXmlString(String xml) =>
+      parser.parseSldXmlString(xml);
+
+  /// Parses SLD/SE from raw bytes (UTF-8).
+  ///
+  /// Returns an [SldParseResult] with the parsed document and any issues.
+  static SldParseResult parseBytes(List<int> bytes) =>
+      parser.parseSldBytes(bytes);
 
   /// SLD version string (e.g. `"1.0.0"` or `"1.1.0"`).
   final String? version;

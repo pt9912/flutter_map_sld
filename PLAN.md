@@ -53,43 +53,44 @@ Wiederverwendbare Utilities für Namespace-Handling und Knotensuche.
 Bottom-up implementieren: Blatt-Parser zuerst, dann Komposition nach oben.
 
 ### 4a: RasterSymbolizerParser
-- [ ] `ColorMapEntry` parsen (color, quantity, opacity, label)
-- [ ] `ColorMap` parsen (type-Attribut, Einträge sammeln)
-- [ ] `ContrastEnhancement` parsen (method, gammaValue)
-- [ ] `RasterSymbolizer` parsen (opacity, colorMap, contrastEnhancement)
-- [ ] Unbekannte Kind-Elemente als `ExtensionNode` erfassen
-- [ ] `SldParseIssue` erzeugen bei XML-Strukturfehlern, unlesbaren Zahlenwerten oder irreparabel unvollständigen Knoten
-- [ ] Unit-Tests mit XML-Fragmenten
+- [x] `ColorMapEntry` parsen (color, quantity, opacity, label)
+- [x] `ColorMap` parsen (type-Attribut, Einträge sammeln)
+- [x] `ContrastEnhancement` parsen (method, gammaValue)
+- [x] `RasterSymbolizer` parsen (opacity, colorMap, contrastEnhancement)
+- [x] Unbekannte Kind-Elemente als `ExtensionNode` erfassen
+- [x] `SldParseIssue` erzeugen bei XML-Strukturfehlern, unlesbaren Zahlenwerten oder irreparabel unvollständigen Knoten
+- [x] Unit-Tests mit XML-Fragmenten
 
 ### 4b: RuleParser
-- [ ] `Rule` parsen (name, minScale, maxScale, rasterSymbolizer)
-- [ ] Delegation an `RasterSymbolizerParser`
-- [ ] Unit-Tests
+- [x] `Rule` parsen (name, minScale, maxScale, rasterSymbolizer)
+- [x] Delegation an `RasterSymbolizerParser`
+- [x] Unit-Tests
 
 ### 4c: StyleParser
-- [ ] `FeatureTypeStyle` parsen (rules sammeln)
-- [ ] `UserStyle` parsen (name, featureTypeStyles)
-- [ ] Delegation an `RuleParser`
-- [ ] Unit-Tests
+- [x] `FeatureTypeStyle` parsen (rules sammeln)
+- [x] `UserStyle` parsen (name, featureTypeStyles)
+- [x] Delegation an `RuleParser`
+- [x] Unit-Tests
 
 ### 4d: LayerParser
-- [ ] `NamedLayer` parsen (name, styles)
-- [ ] Delegation an `StyleParser`
-- [ ] Unit-Tests
+- [x] `NamedLayer` parsen (name, styles)
+- [x] Delegation an `StyleParser`
+- [x] Unit-Tests
 
 ### 4e: SldParser (Orchestrierung)
-- [ ] `StyledLayerDescriptor` als Root erkennen (SLD 1.0 und 1.1)
-- [ ] Version-Attribut extrahieren
-- [ ] Delegation an `LayerParser`
-- [ ] `SldParseResult` zusammenbauen (document + gesammelte issues)
-- [ ] Ungültiges XML abfangen → `SldParseIssue` mit Severity `error`, document = null
-- [ ] Unit-Tests
+- [x] `StyledLayerDescriptor` als Root erkennen (SLD 1.0 und 1.1)
+- [x] Version-Attribut extrahieren
+- [x] Delegation an `LayerParser`
+- [x] `SldParseResult` zusammenbauen (document + gesammelte issues)
+- [x] Ungültiges XML abfangen → `SldParseIssue` mit Severity `error`, document = null
+- [x] Ungültiges UTF-8 abfangen → `SldParseIssue` mit Severity `error`
+- [x] Unit-Tests
 
 ### 4f: Öffentliche API
-- [ ] `SldDocument.parseXmlString(String xml)` → `SldParseResult`
-- [ ] `SldDocument.parseBytes(List<int> bytes)` → `SldParseResult`
-- [ ] `SldDocument.selectRasterSymbolizers()` Convenience-Methode
-- [ ] Integration-Tests mit vollständigen SLD-Dokumenten
+- [x] `SldDocument.parseXmlString(String xml)` → `SldParseResult`
+- [x] `SldDocument.parseBytes(List<int> bytes)` → `SldParseResult`
+- [x] `SldDocument.selectRasterSymbolizers()` Convenience-Methode (Phase 2)
+- [x] Integration-Tests: SLD 1.0 unprefixed, sld:-prefixed, SE/SLD 1.1 se:-prefixed, Multi-Layer
 
 ## Phase 5: Golden-Style-Tests
 
