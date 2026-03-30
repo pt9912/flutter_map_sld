@@ -12,6 +12,7 @@ permissions:
 jobs:
   publish:
     name: Publish flutter_map_sld
+    environment: pub.dev
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
     with:
       working-directory: packages/flutter_map_sld
