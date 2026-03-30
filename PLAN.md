@@ -129,10 +129,11 @@ Fachliche Prüfung auf Basis des geparsten Modells.
 
 ## Phase 7: Interop (Legenden und Farbskalen)
 
-- [ ] Legenden-Modell: `LegendEntry` (`color`, `label`, `quantity`, `opacity`)
-- [ ] Extraktion von Legendendaten aus `ColorMap`
-- [ ] Farbskalen-Export: geordnete Liste von Farb-/Quantity-Paaren
-- [ ] Unit-Tests mit verschiedenen ColorMap-Typen (ramp, intervals, values)
+- [x] `LegendEntry` (`colorArgb`, `label`, `quantity`, `opacity`) mit Equality
+- [x] `ColorScaleStop` (`colorArgb`, `quantity`) mit Equality
+- [x] `extractLegend(ColorMap)` → geordnete Legendeneinträge
+- [x] `extractColorScale(ColorMap)` → nach Quantity sortierte Farbskala
+- [x] 12 Unit-Tests: ramp, intervals, exactValues, Sortierung, leere ColorMaps, Many-Color
 
 ## Phase 8: API-Finalisierung und Dokumentation
 

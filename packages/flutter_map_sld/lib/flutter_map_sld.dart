@@ -16,6 +16,9 @@ export 'src/model/rule.dart';
 export 'src/model/sld_document.dart';
 export 'src/model/style.dart';
 
+// Interop
+export 'src/interop/legend/legend_model.dart';
+
 // Validation
 export 'src/validation/validation_result.dart';
 export 'src/validation/validator.dart';
