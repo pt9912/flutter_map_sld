@@ -113,18 +113,19 @@ Echte SLD-Dateien aus dem GeoServer Raster Cookbook als Testfixtures.
 
 Fachliche Prüfung auf Basis des geparsten Modells.
 
-- [ ] `SldValidator` Grundgerüst
-- [ ] `SldValidationResult` (`issues`, `hasErrors`)
-- [ ] Klare Verantwortungsgrenze dokumentieren: Parser meldet Struktur-/Syntaxprobleme, Validierung meldet fachliche Regeln und Support-Status
-- [ ] Raster-Validierungsregeln:
-  - [ ] `opacity` muss zwischen 0.0 und 1.0 liegen
-  - [ ] `ColorMap` braucht mindestens einen Eintrag
-  - [ ] `quantity`-Werte sollten aufsteigend sortiert sein
-  - [ ] `ColorMap type="intervals"` als `vendorExtension` markieren
-- [ ] ColorMap-Validierungsregeln:
-  - [ ] Doppelte `quantity`-Werte erkennen
-  - [ ] fachlich problematische oder nur teilweise nutzbare `ColorMap`-Konstellationen kennzeichnen
-- [ ] Unit-Tests: valide und invalide Modelle, erwartete Issues
+- [x] `SldValidator` Grundgerüst mit Modellpfad-Traversierung
+- [x] `SldValidationResult` (`issues`, `hasErrors`, `hasWarnings`)
+- [x] Klare Verantwortungsgrenze dokumentiert (dartdoc auf Validator + ValidationResult)
+- [x] Raster-Validierungsregeln:
+  - [x] `opacity` muss zwischen 0.0 und 1.0 liegen (`opacity-out-of-range`)
+  - [x] `ColorMap` braucht mindestens einen Eintrag (`empty-color-map`)
+  - [x] `quantity`-Werte sollten aufsteigend sortiert sein (`quantity-not-ascending`)
+  - [x] `ColorMap type="intervals"` als `vendorExtension` markiert (`vendor-extension-intervals`)
+  - [x] GammaValue muss positiv sein (`gamma-not-positive`)
+- [x] ColorMap-Validierungsregeln:
+  - [x] Doppelte `quantity`-Werte erkennen (`duplicate-quantity`)
+  - [x] Entry-Opacity außerhalb 0.0–1.0 (`entry-opacity-out-of-range`)
+- [x] 18 Unit-Tests: valide/invalide Modelle, Grenzwerte, Mehrfach-Issues, Modellpfad-Prüfung
 
 ## Phase 7: Interop (Legenden und Farbskalen)
 

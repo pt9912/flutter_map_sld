@@ -15,3 +15,7 @@ export 'src/model/raster_symbolizer.dart';
 export 'src/model/rule.dart';
 export 'src/model/sld_document.dart';
 export 'src/model/style.dart';
+
+// Validation
+export 'src/validation/validation_result.dart';
+export 'src/validation/validator.dart';
