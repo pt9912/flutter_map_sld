@@ -28,6 +28,18 @@ jobs:
       - name: Build analyze target
         run: docker build --target analyze -t flutter_map_sld:analyze .
 
+  doc:
+    name: Doc
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build doc target
+        run: docker build --target doc -t flutter_map_sld:doc .
+
   test:
     name: Test
     runs-on: ubuntu-latest
