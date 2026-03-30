@@ -7,11 +7,16 @@ import '../../model/issue.dart';
 import '../../model/raster_symbolizer.dart';
 import '../xml_helpers.dart';
 
-/// Known child element names within a RasterSymbolizer.
-const _knownRasterChildren = {
+/// Child element names that are actively parsed in this version.
+const _parsedRasterChildren = {
   'Opacity',
   'ColorMap',
   'ContrastEnhancement',
+};
+
+/// Known-but-not-yet-implemented OGC child elements.
+/// These are preserved as ExtensionNodes (not silently dropped).
+const _knownButUnimplementedRasterChildren = {
   'ChannelSelection',
   'ShadedRelief',
   'ImageOutline',
@@ -187,11 +192,24 @@ RasterSymbolizer parseRasterSymbolizer(
       ? parseContrastEnhancement(ceEl, issues, '$path/ContrastEnhancement')
       : null;
 
-  // Collect unknown children as ExtensionNodes.
+  // Collect non-parsed children as ExtensionNodes.
+  // Both unknown vendor elements and known-but-not-yet-implemented OGC
+  // elements are preserved, per the conservation principle.
   final extensions = <ExtensionNode>[];
   for (final child in element.childElements) {
-    if (!_knownRasterChildren.contains(child.localName)) {
-      extensions.add(_toExtensionNode(child));
+    if (_parsedRasterChildren.contains(child.localName)) continue;
+
+    extensions.add(_toExtensionNode(child));
+
+    if (_knownButUnimplementedRasterChildren.contains(child.localName)) {
+      issues.add(SldParseIssue(
+        severity: SldIssueSeverity.info,
+        code: 'unsupported-element',
+        message:
+            'Known but not yet supported element: <${child.localName}>',
+        location: '$path/${child.localName}',
+      ));
+    } else {
       issues.add(SldParseIssue(
         severity: SldIssueSeverity.info,
         code: 'unknown-element',

@@ -134,7 +134,7 @@ graph TB
 | Komponente | Zweck | Verwendung |
 |------------|-------|------------|
 | `SldDocument.parse*` | öffentliche Core-Einstiegspunkte | String oder Bytes einlesen |
-| `SldIo` | optionale I/O-Helfer in eigenem Package | Datei, Asset oder HTTP außerhalb des Core |
+| `SldIo` | optionale I/O-Helfer in eigenem Package | Datei oder HTTP außerhalb des Core; Flutter-Assets im Flutter-Package |
 | `SldParser` | zentrale Orchestrierung | XML-Dokument analysieren und Modell aufbauen |
 | `LayerParser` | Layer-Strukturen | `NamedLayer`, `UserLayer` |
 | `StyleParser` | Style-Strukturen | `UserStyle`, `FeatureTypeStyle` |
@@ -172,7 +172,9 @@ Verantwortung:
 
 Fehlerbehandlung:
 
-Fehler im Input-Layer werden als `SldParseIssue` im `SldParseResult` gemeldet, nicht als Exception. Dadurch bleibt die API einheitlich und der Aufrufer muss nur einen Fehlerkanal prüfen. Exceptions werden nur bei Programmierfehlern (z.B. `null`-Argumente) geworfen, nicht bei fehlerhaftem XML-Input.
+Fehler im Core-Input-Layer werden als `SldParseIssue` im `SldParseResult` gemeldet, nicht als Exception. Dadurch bleibt die API einheitlich und der Aufrufer muss nur einen Fehlerkanal prüfen. Exceptions werden nur bei Programmierfehlern (z.B. `null`-Argumente) geworfen, nicht bei fehlerhaftem XML-Input.
+
+Transportfehler in Adapter-Packages sind davon getrennt. Ein optionales Package wie `flutter_map_sld_io` soll Datei-, Netzwerk- oder HTTP-Fehler nicht in `SldParseIssue` umbiegen, sondern als eigenen Load-Fehlerkanal modellieren.
 
 - Ungültiges XML (Syntax-Fehler): `SldParseIssue` mit Severity `error`, `document` ist `null`
 - Unbekanntes Encoding: `SldParseIssue` mit Severity `error`

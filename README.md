@@ -103,4 +103,4 @@ dart test
 
 ## Status
 
-In Entwicklung. Noch kein Release auf pub.dev.
+`flutter_map_sld` v0.1.0 ist auf pub.dev veröffentlicht. Die Adapter-Packages `flutter_map_sld_io` und `flutter_map_sld_flutter_map` sind noch geplant.
