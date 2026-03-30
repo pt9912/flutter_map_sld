@@ -137,14 +137,14 @@ Fachliche Prüfung auf Basis des geparsten Modells.
 
 ## Phase 8: API-Finalisierung und Dokumentation
 
-- [ ] Öffentliche Exports in `lib/flutter_map_sld.dart` prüfen und aufräumen
-- [ ] dartdoc-Kommentare für alle öffentlichen Klassen und Methoden
-- [ ] `example/` Verzeichnis mit minimalem Nutzungsbeispiel
-- [ ] `CHANGELOG.md` für v0.1.0
-- [ ] `pubspec.yaml` finalisieren (description, homepage, topics)
-- [ ] `dart analyze` im Verzeichnis `packages/flutter_map_sld/` ohne Warnungen
-- [ ] `dart test` im Verzeichnis `packages/flutter_map_sld/` alle Tests grün
-- [ ] `dart doc` im Verzeichnis `packages/flutter_map_sld/` generiert ohne Fehler
+- [x] Öffentliche Exports in `lib/flutter_map_sld.dart` geprüft (12 Dateien, 21 öffentliche Klassen/Enums)
+- [x] dartdoc-Kommentare auf allen öffentlichen Klassen, Enums, Methoden und Feldern
+- [x] `example/parse_and_validate.dart` mit Parse → Validate → Legend → ColorScale Workflow
+- [x] `CHANGELOG.md` für v0.1.0
+- [x] `pubspec.yaml` finalisiert (homepage, repository, topics: gis, sld, ogc, geospatial, mapping)
+- [x] `dart analyze`: No issues (via Docker `dart:stable`)
+- [x] `dart test`: 155 Tests grün (via Docker)
+- [x] `dart doc`: 0 warnings, 0 errors (via Docker)
 
 ## Phase 9: Publish-Vorbereitung
 

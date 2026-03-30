@@ -88,11 +88,11 @@ SldParseResult _parseXmlDocument(XmlDocument xmlDoc) {
   }
 
   if (layers.isEmpty) {
-    issues.add(SldParseIssue(
+    issues.add(const SldParseIssue(
       severity: SldIssueSeverity.warning,
       code: 'no-layers',
       message: 'No <NamedLayer> elements found',
-      location: basePath,
+      location: '/StyledLayerDescriptor',
     ));
   }
 

@@ -1,5 +1,5 @@
-import '_equality.dart';
 import '../parser/sld_parser.dart' as parser;
+import '_equality.dart';
 import 'issue.dart';
 import 'layer.dart';
 import 'raster_symbolizer.dart';

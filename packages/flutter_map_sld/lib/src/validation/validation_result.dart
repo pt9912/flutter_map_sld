@@ -1,6 +1,6 @@
 import '../model/issue.dart';
 
-/// The result of validating a parsed [SldDocument].
+/// The result of validating a parsed `SldDocument`.
 ///
 /// Validation is separate from parsing: the parser reports structural and
 /// syntax problems ([SldParseIssue]), while validation reports domain-level

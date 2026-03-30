@@ -17,3 +17,7 @@ RUN dart analyze
 # Test
 FROM base AS test
 RUN dart test
+
+# Doc
+FROM base AS doc
+RUN dart doc

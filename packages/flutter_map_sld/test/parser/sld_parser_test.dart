@@ -33,7 +33,7 @@ void main() {
     });
 
     test('parseBytes works with valid UTF-8', () {
-      final xml = '<StyledLayerDescriptor version="1.0.0">'
+      const xml = '<StyledLayerDescriptor version="1.0.0">'
           '<NamedLayer><Name>L</Name></NamedLayer>'
           '</StyledLayerDescriptor>';
       final result = SldDocument.parseBytes(utf8.encode(xml));
