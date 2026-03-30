@@ -75,6 +75,27 @@ Der erste Release ist **raster-first** und umfasst den Pure-Dart-Core:
 - [OGC Styled Layer Descriptor (SLD) 1.0/1.1](https://www.ogc.org/standards/sld/)
 - [GeoServer Raster Cookbook](https://docs.geoserver.org/stable/en/user/styling/sld/cookbook/rasters.html) als Referenz für Praxisfälle
 
+## Entwicklung
+
+Kein lokales Dart SDK nötig — alle Befehle laufen via Docker:
+
+```bash
+# Analyse
+docker build --target analyze -t flutter_map_sld:analyze .
+
+# Tests
+docker build --target test -t flutter_map_sld:test .
+```
+
+Mit lokalem Dart SDK (>=3.0.0):
+
+```bash
+cd packages/flutter_map_sld
+dart pub get
+dart analyze
+dart test
+```
+
 ## Dokumentation
 
 - [Concept](docs/concept.md) — Produktvision, Scope und Zielgruppen

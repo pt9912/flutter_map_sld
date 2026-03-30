@@ -1,0 +1,22 @@
+# Git
+.git/
+
+# Documentation
+docs/
+*.md
+LICENSE
+
+# IDE
+.idea/
+.vscode/
+
+# Dart build artifacts
+**/build/
+**/.dart_tool/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/

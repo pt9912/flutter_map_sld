@@ -8,13 +8,13 @@ Grundlage: [Concept](docs/concept.md) und [Architecture](docs/architecture.md).
 
 ## Phase 1: Projekt-Setup
 
-- [ ] Monorepo-Verzeichnisstruktur anlegen (`packages/flutter_map_sld/`)
-- [ ] Root-Dokumentation im Repo-Root belassen; alle Build-/Analyse-/Test-Befehle für den MVP laufen im Package-Verzeichnis `packages/flutter_map_sld/`
-- [ ] `pubspec.yaml` für Core-Package erstellen (Dart >=3.0.0, Dependency `xml`)
-- [ ] `analysis_options.yaml` mit strikten Lint-Regeln (`lints` oder `very_good_analysis`)
-- [ ] Library-Entrypoint `lib/flutter_map_sld.dart` anlegen
-- [ ] Leere Verzeichnisstruktur unter `lib/src/` gemäß Architektur erstellen
-- [ ] `dart analyze` und `dart test` laufen im Verzeichnis `packages/flutter_map_sld/` ohne Fehler (Baseline)
+- [x] Monorepo-Verzeichnisstruktur anlegen (`packages/flutter_map_sld/`)
+- [x] Root-Dokumentation im Repo-Root belassen; alle Build-/Analyse-/Test-Befehle für den MVP laufen im Package-Verzeichnis `packages/flutter_map_sld/`
+- [x] `pubspec.yaml` für Core-Package erstellen (Dart >=3.0.0, Dependency `xml`)
+- [x] `analysis_options.yaml` mit strikten Lint-Regeln (`lints` oder `very_good_analysis`)
+- [x] Library-Entrypoint `lib/flutter_map_sld.dart` anlegen
+- [x] Leere Verzeichnisstruktur unter `lib/src/` gemäß Architektur erstellen
+- [x] `dart analyze` und `dart test` laufen ohne Fehler (verifiziert via `docker build --target analyze` / `--target test` mit `dart:stable`; kein lokales Dart SDK vorhanden)
 
 ## Phase 2: Domain Model
 
