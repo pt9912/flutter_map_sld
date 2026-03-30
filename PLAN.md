@@ -20,22 +20,24 @@ Grundlage: [Concept](docs/concept.md) und [Architecture](docs/architecture.md).
 
 Immutable Datenklassen — Kern der Bibliothek, keine Abhängigkeit auf XML-Package.
 
-- [ ] `SldIssueSeverity` Enum (`error`, `warning`, `info`)
-- [ ] `sealed class SldIssue` mit Subklassen `SldParseIssue`, `SldValidationIssue`
-- [ ] `SldParseResult` (`document`, `issues`, `hasErrors`)
-- [ ] `SldDocument` (`version`, `layers`)
-- [ ] `SldLayer` (`name`, `styles`)
-- [ ] `UserStyle` (`name`, `featureTypeStyles`)
-- [ ] `FeatureTypeStyle` (`rules`)
-- [ ] `Rule` (`name`, `minScaleDenominator`, `maxScaleDenominator`, `rasterSymbolizer`)
-- [ ] `RasterSymbolizer` (`opacity`, `colorMap`, `contrastEnhancement`)
-- [ ] `ColorMapType` Enum (`ramp`, `intervals`, `values`)
-- [ ] `ColorMap` (`type`, `entries`)
-- [ ] `ColorMapEntry` (`colorArgb`, `quantity`, `opacity`, `label`)
-- [ ] `ContrastEnhancement` (`method`, `gammaValue`)
-- [ ] `ContrastMethod` Enum (`normalize`, `histogram`, `none`)
-- [ ] `ExtensionNode` (`namespaceUri`, `localName`, `attributes`, `text`, `rawXml`, `children`)
-- [ ] Unit-Tests: Konstruktion, Equality, Immutability
+- [x] `SldIssueSeverity` Enum (`error`, `warning`, `info`)
+- [x] `sealed class SldIssue` mit Subklassen `SldParseIssue`, `SldValidationIssue`
+- [x] `SldParseResult` (`document`, `issues`, `hasErrors`)
+- [x] `SldDocument` (`version`, `layers`, `selectRasterSymbolizers()`)
+- [x] `SldLayer` (`name`, `styles`)
+- [x] `UserStyle` (`name`, `featureTypeStyles`)
+- [x] `FeatureTypeStyle` (`rules`)
+- [x] `Rule` (`name`, `minScaleDenominator`, `maxScaleDenominator`, `rasterSymbolizer`)
+- [x] `RasterSymbolizer` (`opacity`, `colorMap`, `contrastEnhancement`, `extensions`)
+- [x] `ColorMapType` Enum (`ramp`, `intervals`, `exactValues`)
+- [x] `ColorMap` (`type`, `entries`)
+- [x] `ColorMapEntry` (`colorArgb`, `quantity`, `opacity`, `label`)
+- [x] `ContrastEnhancement` (`method`, `gammaValue`)
+- [x] `ContrastMethod` Enum (`normalize`, `histogram`, `none`)
+- [x] `ExtensionNode` (`namespaceUri`, `localName`, `attributes`, `text`, `rawXml`, `children`)
+- [x] `==` / `hashCode` auf allen Modellklassen (inkl. deep collection equality via internem Helfer)
+- [x] Deep Immutability: alle `List`- und `Map`-Felder via `List.unmodifiable()` / `Map.unmodifiable()` geschützt
+- [x] Unit-Tests: 40 Tests (Konstruktion, Feld-Zugriff, Equality, Mutationsschutz, hasErrors, sealed switch, selectRasterSymbolizers)
 
 ## Phase 3: XML-Helfer
 
