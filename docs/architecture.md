@@ -185,14 +185,32 @@ Vorgesehene API:
 ```dart
 final result = SldDocument.parseXmlString(xml);
 final result = SldDocument.parseBytes(bytes);
+final result = await SldDocument.parseAsyncStream(byteStream);
 
 // Optionaler Adapter in `flutter_map_sld_io`:
 final result = await SldIo.parseFile(path);
 ```
 
+`parseAsyncStream` würde konzeptionell einen abstrakten asynchronen Byte-Strom
+(`Stream<List<int>>`) konsumieren. Diese API braucht im Core keine Abhängigkeit
+auf `dart:io`, weil `Stream` aus `dart:async` stammt und nur eine generische
+asynchrone Datenquelle beschreibt. Konkrete Datei-, Socket- oder HTTP-Quellen
+bleiben Aufgabe eines optionalen Adapter-Packages wie `flutter_map_sld_io`.
+
+Wichtig ist die Abgrenzung zwischen einem Komfort-Wrapper und echtem
+Streaming-Parsing: Eine Implementierung, die den kompletten Stream zunächst in
+Bytes oder einen String einsammelt und danach den bestehenden DOM-Parser nutzt,
+vereinfacht zwar die Aufruferseite, reduziert aber den Peak-Speicherbedarf kaum.
+Ein spürbarer Speichergewinn entsteht erst dann, wenn ein separater
+eventbasierter Parserpfad XML inkrementell verarbeitet und direkt in das
+Domain-Modell transformiert, statt zuerst ein vollständiges `XmlDocument`
+aufzubauen.
+
 Technische Empfehlung:
 
 - Dart-Package `xml` für DOM-basierte Verarbeitung
+- `xml_events` nur dann ergänzen, wenn ein echter inkrementeller Parserpfad
+  eingeführt wird
 - keine Flutter-Abhängigkeit in dieser Schicht
 - keine Pflichtabhängigkeit auf `dart:io` im Core
 

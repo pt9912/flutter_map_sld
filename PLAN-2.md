@@ -43,6 +43,20 @@ Vervollständigt den Raster-Support über das GeoServer Cookbook hinaus.
 
 Erstes separates Package für Datei- und HTTP-basiertes Laden. **Nur VM/Server-Umgebungen** — kein Flutter-Asset-Zugriff (der gehört in `flutter_map_sld_flutter_map`, wie in concept.md und architecture.md definiert).
 
+Hinweis zur Schnittstelle: Ein asynchroner Byte-Strom ist im Dart-Core als
+`Stream<List<int>>` modellierbar und braucht selbst keine Abhängigkeit auf
+`dart:io`. `dart:io` wird erst für konkrete Quellen wie Datei- oder
+Socket-Zugriff relevant. Deshalb kann ein optionales
+`SldDocument.parseAsyncStream(Stream<List<int>> byteStream)` im Core liegen,
+während konkrete Reader weiter im IO-Package bleiben.
+
+Wichtig: Ein solches `parseAsyncStream()` bringt für große Dokumente nur dann
+einen echten Speichervorteil, wenn es nicht bloß den Stream einsammelt und
+anschließend `parseBytes()` oder `parseXmlString()` aufruft. Falls der
+Speicherbedarf großer XML-Dokumente ein Ziel ist, braucht der Core einen
+separaten eventbasierten Parserpfad, der XML inkrementell liest und direkt in
+das SLD-Domain-Modell überführt.
+
 ### Entscheidung: Fehlermodell
 
 I/O-Fehler (Datei nicht gefunden, Netzwerkfehler, HTTP 404) sind keine XML-Parse-Probleme und dürfen nicht als `SldParseIssue` modelliert werden — `SldParseIssue.location` ist ein XPath-Pfad und hat bei Transportfehlern keine Semantik.
@@ -89,6 +103,8 @@ Bei erfolgreichem Laden liefert das IO-Package `SldLoadSuccess(parseResult)`. Be
 - [ ] `analysis_options.yaml` (gleiche strikte Regeln wie Core)
 - [ ] Library-Entrypoint `lib/flutter_map_sld_io.dart`
 - [ ] `SldLoadResult`, `SldLoadError`, `SldLoadErrorKind` Domain-Typen
+- [ ] Optionaler Core-Helfer prüfen: `SldDocument.parseAsyncStream(Stream<List<int>> byteStream)` als plattformneutrale Async-API ohne `dart:io`
+- [ ] Dabei explizit entscheiden: Komfort-Wrapper um den bestehenden DOM-Parser oder eigener eventbasierter Parserpfad mit direkter Domain-Modell-Erzeugung
 
 ### C2: Datei-Adapter
 - [ ] `SldIo.parseFile(String path)` → `Future<SldLoadResult>`
