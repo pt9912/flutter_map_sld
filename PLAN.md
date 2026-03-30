@@ -148,10 +148,10 @@ Fachliche Prüfung auf Basis des geparsten Modells.
 
 ## Phase 9: Publish-Vorbereitung
 
-- [ ] `dart pub publish --dry-run` im Verzeichnis `packages/flutter_map_sld/` erfolgreich
-- [ ] LICENSE-Datei vorhanden
-- [ ] README.md im Core-Package (kann auf Root-README verweisen)
-- [ ] Finale Review aller öffentlichen API-Oberflächen
+- [x] `dart pub publish --dry-run`: 0 warnings (via Docker)
+- [x] LICENSE (MIT) im Core-Package vorhanden
+- [x] README.md im Core-Package mit Features, Usage, Package-Familie-Tabelle
+- [x] Finale API-Oberfläche: 12 exportierte Dateien, 21 öffentliche Klassen/Enums, 2 Top-Level-Funktionen
 
 ---
 

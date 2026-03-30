@@ -21,3 +21,7 @@ RUN dart test
 # Doc
 FROM base AS doc
 RUN dart doc
+
+# Publish dry-run
+FROM base AS publish-check
+RUN dart pub publish --dry-run
