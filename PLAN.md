@@ -96,18 +96,18 @@ Bottom-up implementieren: Blatt-Parser zuerst, dann Komposition nach oben.
 
 Echte SLD-Dateien aus dem GeoServer Raster Cookbook als Testfixtures.
 
-- [ ] Testdaten-Verzeichnis `test/fixtures/` anlegen
-- [ ] Two-Color Gradient SLD
-- [ ] Transparent Gradient SLD
-- [ ] Brightness and Contrast SLD
-- [ ] Three-Color Gradient SLD
-- [ ] Alpha Channel SLD
-- [ ] Discrete Colors SLD (intervals)
-- [ ] Many Color Gradient SLD
-- [ ] SLD 1.0 Namespace-Variante (mindestens ein Beispiel)
-- [ ] SE/SLD 1.1 Namespace-Variante (mindestens ein Beispiel)
-- [ ] SLD mit unbekannten Vendor-Extensions
-- [ ] Alle Golden-Tests parsen ohne Fehler und liefern erwartete Modellwerte
+- [x] Testdaten-Verzeichnis `test/fixtures/` mit 10 SLD-Dateien
+- [x] Two-Color Gradient SLD
+- [x] Transparent Gradient SLD
+- [x] Brightness and Contrast SLD
+- [x] Three-Color Gradient SLD
+- [x] Alpha Channel SLD
+- [x] Discrete Colors SLD (intervals)
+- [x] Many Color Gradient SLD
+- [x] SLD 1.0 Namespace-Variante (`sld:`-Präfix)
+- [x] SE/SLD 1.1 Namespace-Variante (`se:`-Präfix)
+- [x] SLD mit unbekannten Vendor-Extensions (2 VendorOption-Elemente)
+- [x] 21 Golden-Tests: alle Fixtures parsen ohne Fehler, konkrete Modellwerte verifiziert
 
 ## Phase 6: Validation
 
