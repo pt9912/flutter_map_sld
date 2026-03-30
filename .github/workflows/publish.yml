@@ -1,0 +1,17 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'flutter_map_sld-v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish flutter_map_sld
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: packages/flutter_map_sld
