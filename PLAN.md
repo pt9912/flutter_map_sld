@@ -1,0 +1,174 @@
+# flutter_map_sld: Implementierungsplan MVP
+
+Dieser Plan beschreibt die Schritte vom aktuellen Stand (nur Dokumentation) bis zum ersten veröffentlichbaren Release des Pure-Dart-Core-Packages `flutter_map_sld`.
+
+Grundlage: [Concept](docs/concept.md) und [Architecture](docs/architecture.md).
+
+---
+
+## Phase 1: Projekt-Setup
+
+- [ ] Monorepo-Verzeichnisstruktur anlegen (`packages/flutter_map_sld/`)
+- [ ] Root-Dokumentation im Repo-Root belassen; alle Build-/Analyse-/Test-Befehle für den MVP laufen im Package-Verzeichnis `packages/flutter_map_sld/`
+- [ ] `pubspec.yaml` für Core-Package erstellen (Dart >=3.0.0, Dependency `xml`)
+- [ ] `analysis_options.yaml` mit strikten Lint-Regeln (`lints` oder `very_good_analysis`)
+- [ ] Library-Entrypoint `lib/flutter_map_sld.dart` anlegen
+- [ ] Leere Verzeichnisstruktur unter `lib/src/` gemäß Architektur erstellen
+- [ ] `dart analyze` und `dart test` laufen im Verzeichnis `packages/flutter_map_sld/` ohne Fehler (Baseline)
+
+## Phase 2: Domain Model
+
+Immutable Datenklassen — Kern der Bibliothek, keine Abhängigkeit auf XML-Package.
+
+- [ ] `SldIssueSeverity` Enum (`error`, `warning`, `info`)
+- [ ] `sealed class SldIssue` mit Subklassen `SldParseIssue`, `SldValidationIssue`
+- [ ] `SldParseResult` (`document`, `issues`, `hasErrors`)
+- [ ] `SldDocument` (`version`, `layers`)
+- [ ] `SldLayer` (`name`, `styles`)
+- [ ] `UserStyle` (`name`, `featureTypeStyles`)
+- [ ] `FeatureTypeStyle` (`rules`)
+- [ ] `Rule` (`name`, `minScaleDenominator`, `maxScaleDenominator`, `rasterSymbolizer`)
+- [ ] `RasterSymbolizer` (`opacity`, `colorMap`, `contrastEnhancement`)
+- [ ] `ColorMapType` Enum (`ramp`, `intervals`, `values`)
+- [ ] `ColorMap` (`type`, `entries`)
+- [ ] `ColorMapEntry` (`colorArgb`, `quantity`, `opacity`, `label`)
+- [ ] `ContrastEnhancement` (`method`, `gammaValue`)
+- [ ] `ContrastMethod` Enum (`normalize`, `histogram`, `none`)
+- [ ] `ExtensionNode` (`namespaceUri`, `localName`, `attributes`, `text`, `rawXml`, `children`)
+- [ ] Unit-Tests: Konstruktion, Equality, Immutability
+
+## Phase 3: XML-Helfer
+
+Wiederverwendbare Utilities für Namespace-Handling und Knotensuche.
+
+- [ ] `xml_helpers.dart`: Namespace-aware Element-Suche (SLD 1.0 + SE/SLD 1.1)
+- [ ] Unterstützung für `sld:`- und `se:`-Präfixe sowie unpräfixierte Elemente
+- [ ] Hilfsfunktionen: Text-Extraktion, Attribut-Parsing, Farbwert-Konvertierung (#RRGGBB → ARGB-int)
+- [ ] Unit-Tests: Namespace-Varianten, Farbkonvertierung, fehlende Attribute
+
+## Phase 4: Parser
+
+Bottom-up implementieren: Blatt-Parser zuerst, dann Komposition nach oben.
+
+### 4a: RasterSymbolizerParser
+- [ ] `ColorMapEntry` parsen (color, quantity, opacity, label)
+- [ ] `ColorMap` parsen (type-Attribut, Einträge sammeln)
+- [ ] `ContrastEnhancement` parsen (method, gammaValue)
+- [ ] `RasterSymbolizer` parsen (opacity, colorMap, contrastEnhancement)
+- [ ] Unbekannte Kind-Elemente als `ExtensionNode` erfassen
+- [ ] `SldParseIssue` erzeugen bei XML-Strukturfehlern, unlesbaren Zahlenwerten oder irreparabel unvollständigen Knoten
+- [ ] Unit-Tests mit XML-Fragmenten
+
+### 4b: RuleParser
+- [ ] `Rule` parsen (name, minScale, maxScale, rasterSymbolizer)
+- [ ] Delegation an `RasterSymbolizerParser`
+- [ ] Unit-Tests
+
+### 4c: StyleParser
+- [ ] `FeatureTypeStyle` parsen (rules sammeln)
+- [ ] `UserStyle` parsen (name, featureTypeStyles)
+- [ ] Delegation an `RuleParser`
+- [ ] Unit-Tests
+
+### 4d: LayerParser
+- [ ] `NamedLayer` parsen (name, styles)
+- [ ] Delegation an `StyleParser`
+- [ ] Unit-Tests
+
+### 4e: SldParser (Orchestrierung)
+- [ ] `StyledLayerDescriptor` als Root erkennen (SLD 1.0 und 1.1)
+- [ ] Version-Attribut extrahieren
+- [ ] Delegation an `LayerParser`
+- [ ] `SldParseResult` zusammenbauen (document + gesammelte issues)
+- [ ] Ungültiges XML abfangen → `SldParseIssue` mit Severity `error`, document = null
+- [ ] Unit-Tests
+
+### 4f: Öffentliche API
+- [ ] `SldDocument.parseXmlString(String xml)` → `SldParseResult`
+- [ ] `SldDocument.parseBytes(List<int> bytes)` → `SldParseResult`
+- [ ] `SldDocument.selectRasterSymbolizers()` Convenience-Methode
+- [ ] Integration-Tests mit vollständigen SLD-Dokumenten
+
+## Phase 5: Golden-Style-Tests
+
+Echte SLD-Dateien aus dem GeoServer Raster Cookbook als Testfixtures.
+
+- [ ] Testdaten-Verzeichnis `test/fixtures/` anlegen
+- [ ] Two-Color Gradient SLD
+- [ ] Transparent Gradient SLD
+- [ ] Brightness and Contrast SLD
+- [ ] Three-Color Gradient SLD
+- [ ] Alpha Channel SLD
+- [ ] Discrete Colors SLD (intervals)
+- [ ] Many Color Gradient SLD
+- [ ] SLD 1.0 Namespace-Variante (mindestens ein Beispiel)
+- [ ] SE/SLD 1.1 Namespace-Variante (mindestens ein Beispiel)
+- [ ] SLD mit unbekannten Vendor-Extensions
+- [ ] Alle Golden-Tests parsen ohne Fehler und liefern erwartete Modellwerte
+
+## Phase 6: Validation
+
+Fachliche Prüfung auf Basis des geparsten Modells.
+
+- [ ] `SldValidator` Grundgerüst
+- [ ] `SldValidationResult` (`issues`, `hasErrors`)
+- [ ] Klare Verantwortungsgrenze dokumentieren: Parser meldet Struktur-/Syntaxprobleme, Validierung meldet fachliche Regeln und Support-Status
+- [ ] Raster-Validierungsregeln:
+  - [ ] `opacity` muss zwischen 0.0 und 1.0 liegen
+  - [ ] `ColorMap` braucht mindestens einen Eintrag
+  - [ ] `quantity`-Werte sollten aufsteigend sortiert sein
+  - [ ] `ColorMap type="intervals"` als `vendorExtension` markieren
+- [ ] ColorMap-Validierungsregeln:
+  - [ ] Doppelte `quantity`-Werte erkennen
+  - [ ] fachlich problematische oder nur teilweise nutzbare `ColorMap`-Konstellationen kennzeichnen
+- [ ] Unit-Tests: valide und invalide Modelle, erwartete Issues
+
+## Phase 7: Interop (Legenden und Farbskalen)
+
+- [ ] Legenden-Modell: `LegendEntry` (`color`, `label`, `quantity`, `opacity`)
+- [ ] Extraktion von Legendendaten aus `ColorMap`
+- [ ] Farbskalen-Export: geordnete Liste von Farb-/Quantity-Paaren
+- [ ] Unit-Tests mit verschiedenen ColorMap-Typen (ramp, intervals, values)
+
+## Phase 8: API-Finalisierung und Dokumentation
+
+- [ ] Öffentliche Exports in `lib/flutter_map_sld.dart` prüfen und aufräumen
+- [ ] dartdoc-Kommentare für alle öffentlichen Klassen und Methoden
+- [ ] `example/` Verzeichnis mit minimalem Nutzungsbeispiel
+- [ ] `CHANGELOG.md` für v0.1.0
+- [ ] `pubspec.yaml` finalisieren (description, homepage, topics)
+- [ ] `dart analyze` im Verzeichnis `packages/flutter_map_sld/` ohne Warnungen
+- [ ] `dart test` im Verzeichnis `packages/flutter_map_sld/` alle Tests grün
+- [ ] `dart doc` im Verzeichnis `packages/flutter_map_sld/` generiert ohne Fehler
+
+## Phase 9: Publish-Vorbereitung
+
+- [ ] `dart pub publish --dry-run` im Verzeichnis `packages/flutter_map_sld/` erfolgreich
+- [ ] LICENSE-Datei vorhanden
+- [ ] README.md im Core-Package (kann auf Root-README verweisen)
+- [ ] Finale Review aller öffentlichen API-Oberflächen
+
+---
+
+## Explizit nicht in diesem Plan
+
+- `flutter_map_sld_io` (Datei/HTTP-Adapter) — separates Package, nach MVP
+- `flutter_map_sld_flutter_map` (Flutter-Adapter) — separates Package, nach MVP
+- WMS-Request-Parameter oder Request-Building
+- Vektor-Symbolizer, Filter, Expressions
+- Client-seitiges Raster-Rendering
+
+## Abhängigkeiten zwischen Phasen
+
+```
+Phase 1 (Setup)
+  └─► Phase 2 (Domain Model)
+        ├─► Phase 3 (XML-Helfer)
+        │     └─► Phase 4 (Parser) ──► Phase 5 (Golden-Tests)
+        └─► Phase 6 (Validation)
+              └─► Phase 7 (Interop)
+                    └─► Phase 8 (API-Finalisierung)
+                          └─► Phase 9 (Publish)
+```
+
+Phase 3 und Phase 6 können parallel begonnen werden, sobald Phase 2 steht.

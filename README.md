@@ -10,13 +10,13 @@ Im Geo-Umfeld ist SLD/SE der etablierte Standard zur Beschreibung von Kartenstil
 
 ## Packages
 
-Das Projekt ist als Package-Familie aufgebaut:
+Das Projekt ist als kleine Package-Familie geplant. Im MVP wird zunächst nur der Pure-Dart-Core umgesetzt.
 
-| Package | Beschreibung | Abhängigkeiten |
-|---------|-------------|----------------|
-| `flutter_map_sld` | Pure-Dart-Core: Parsing, Domain Model, Validation, Interop | `xml` |
-| `flutter_map_sld_io` | Datei-, Asset- und HTTP-Helfer | Core + `dart:io` |
-| `flutter_map_sld_flutter_map` | `flutter_map`-Adapter und Widgets | Core + Flutter + `flutter_map` |
+| Package | Status | Beschreibung | Abhängigkeiten |
+|---------|--------|--------------|----------------|
+| `flutter_map_sld` | MVP | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml` |
+| `flutter_map_sld_io` | später | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen | Core + `dart:io` + HTTP-Client |
+| `flutter_map_sld_flutter_map` | später | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets | Core + Flutter + `flutter_map` |
 
 Der Core enthält bewusst keine Abhängigkeit auf `dart:io`, Flutter oder `flutter_map` und läuft auf Dart VM, Flutter Mobile, Desktop und Web.
 
@@ -37,8 +37,26 @@ if (parseResult.hasErrors) {
 final sld = parseResult.document!;
 final validation = SldValidator().validate(sld);
 
+if (validation.hasErrors) {
+  for (final issue in validation.issues) {
+    print('${issue.severity}: ${issue.message}');
+  }
+  return;
+}
+
 final rasterStyles = sld.selectRasterSymbolizers();
+if (rasterStyles.isEmpty) {
+  return;
+}
+
 final colorMap = rasterStyles.first.colorMap;
+if (colorMap == null) {
+  return;
+}
+
+for (final entry in colorMap.entries) {
+  print('${entry.label}: ${entry.colorArgb}');
+}
 ```
 
 ## MVP-Scope (v1)
