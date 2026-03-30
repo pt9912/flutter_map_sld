@@ -43,10 +43,10 @@ Immutable Datenklassen — Kern der Bibliothek, keine Abhängigkeit auf XML-Pack
 
 Wiederverwendbare Utilities für Namespace-Handling und Knotensuche.
 
-- [ ] `xml_helpers.dart`: Namespace-aware Element-Suche (SLD 1.0 + SE/SLD 1.1)
-- [ ] Unterstützung für `sld:`- und `se:`-Präfixe sowie unpräfixierte Elemente
-- [ ] Hilfsfunktionen: Text-Extraktion, Attribut-Parsing, Farbwert-Konvertierung (#RRGGBB → ARGB-int)
-- [ ] Unit-Tests: Namespace-Varianten, Farbkonvertierung, fehlende Attribute
+- [x] `xml_helpers.dart`: Namespace-aware Element-Suche (SLD 1.0 + SE/SLD 1.1) mit Fallback auf local-name-only
+- [x] Unterstützung für `sld:`- und `se:`-Präfixe, Default-Namespace und unpräfixierte Elemente
+- [x] Hilfsfunktionen: `childText()`, `stringAttr()`, `doubleAttr()`, `parseColorHex()` (#RRGGBB / #AARRGGBB / 0x → ARGB-int)
+- [x] Unit-Tests: 27 Tests (Namespace-Varianten, Farbkonvertierung, fehlende Attribute, Edge Cases)
 
 ## Phase 4: Parser
 
