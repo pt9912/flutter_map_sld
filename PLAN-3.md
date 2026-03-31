@@ -18,7 +18,7 @@ Phase D (WMS-Interop)          ──► unabhängig, kann parallel starten
 
 Phase A und B erweitern den Core (`flutter_map_sld`), Phase C ist ein neues Package, Phase D kann im IO-Package oder als eigenes Package leben.
 
-**Wichtige Design-Entscheidung**: `TextSymbolizer` wird in Phase B statt Phase A implementiert, weil `<Label>` im OGC-Standard eine Expression ist (`<PropertyName>`, `<Literal>`, Verkettungen). Ein `TextSymbolizer` ohne Expression-Modell kann reale SLDs nicht abbilden und würde einen Breaking Change in v0.4.0 erzwingen.
+**Wichtige Design-Entscheidung**: `TextSymbolizer` wird in Phase B statt Phase A implementiert, weil `<Label>` im OGC-Standard eine Expression ist (`<PropertyName>`, `<Literal>`). Ein `TextSymbolizer` ohne Expression-Modell kann reale SLDs nicht abbilden und würde einen Breaking Change in v0.4.0 erzwingen. Verkettungen und SE-Funktionen (`Concatenate`, `FormatNumber`, etc.) sind in diesem Plan noch nicht enthalten — der erste Scope deckt einfache Labels mit einzelnem `PropertyName` oder `Literal` ab.
 
 ---
 
@@ -66,7 +66,7 @@ Erweitert den Core um die drei OGC-Geometrie-Symbolizer. TextSymbolizer folgt in
 
 OGC Filter Encoding erlaubt regelbasierte Stilzuweisung anhand von Feature-Properties. OGC Expressions werden auch für `TextSymbolizer.label` und perspektivisch für parametrische Werte in Symbolizern gebraucht. Deshalb gehören Expressions, Filter und TextSymbolizer in dieselbe Phase.
 
-Erster Scope: Vergleichsoperatoren und logische Verknüpfungen. Keine Spatial-Filter im ersten Schritt.
+Erster Scope: `PropertyName` und `Literal` als Expressions, Vergleichsoperatoren und logische Verknüpfungen als Filter. Keine Spatial-Filter, keine zusammengesetzten Expressions (`Concatenate`, `FormatNumber`, etc.) im ersten Schritt.
 
 ### B1: Expression-Modell
 
@@ -78,7 +78,7 @@ Erster Scope: Vergleichsoperatoren und logische Verknüpfungen. Keine Spatial-Fi
 
 ### B2: TextSymbolizer
 
-Hängt von B1 ab, weil `<Label>` eine Expression (oder Verkettung) enthält.
+Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzelner `PropertyName` oder `Literal` als Label. Zusammengesetzte Labels (Mixed Content, Verkettungen) sind ein späterer Ausbauschritt.
 
 - [ ] `TextSymbolizer` (`label: Expression`, `font`, `fill`, `halo`, `placement`)
 - [ ] `Font` (`family`, `style`, `weight`, `size`)
@@ -111,13 +111,22 @@ Hängt von B1 ab, weil `<Label>` eine Expression (oder Verkettung) enthält.
 
 - [ ] `Filter.evaluate(Map<String, dynamic> properties)` → `bool`
 - [ ] `Rule.appliesTo(Map<String, dynamic> properties, {double? scaleDenominator})` → `bool` — kombiniert Filter und Scale-Check
-- [ ] `SldDocument.selectMatchingRules(Map<String, dynamic> properties, {double? scaleDenominator})` → `List<Rule>` — gibt die passenden Rules mit vollem Kontext zurück (Regelreihenfolge bleibt erhalten, Symbolizer-Zugriff über `rule.pointSymbolizer`, `rule.lineSymbolizer`, etc.)
+- [ ] `MatchedRule` Wrapper-Klasse mit Herkunftskontext:
+  ```dart
+  class MatchedRule {
+    final SldLayer layer;
+    final UserStyle style;
+    final FeatureTypeStyle featureTypeStyle;
+    final Rule rule;
+  }
+  ```
+- [ ] `SldDocument.selectMatchingRules(Map<String, dynamic> properties, {double? scaleDenominator})` → `List<MatchedRule>`
 
-**Design-Entscheidung**: Die Selektions-API gibt `Rule`-Objekte zurück, nicht flache Symbolizer-Listen. Gründe:
+**Design-Entscheidung**: Die Selektions-API gibt `MatchedRule`-Objekte zurück, nicht flache `Rule`- oder Symbolizer-Listen. Gründe:
+- `Rule` allein trägt keine Parent-Referenzen — bei Selektion über mehrere Layer/Styles geht die Herkunft sonst verloren
 - Eine Rule kann mehrere Symbolizer-Typen parallel tragen
 - Regelreihenfolge hat Semantik (Zeichenreihenfolge)
-- Layer-/Style-Kontext bleibt über den Aufrufer nachvollziehbar
-- Adapter-Packages können selbst entscheiden, welche Symbolizer sie auswerten
+- Adapter-Packages können über `matchedRule.layer` / `.style` den Kontext nachvollziehen
 
 ### B6: Tests
 
@@ -161,8 +170,9 @@ Vor einer Implementierung muss geklärt werden:
 - **Wer evaluiert Filter?** Der Adapter, der Aufrufer, oder eine Pipeline?
 - **Wie tief geht die Übersetzung?** Nur Farbe/Stroke-Breite, oder auch Graphic/Mark-Rendering?
 
-Mögliche Richtung, aber **kein fester Planpunkt**:
+Mögliche Richtungen, aber **keine festen Planpunkte**:
 - `SldStyleAdapter` — übersetzt Vektor-Symbolizer in `flutter_map`-kompatible Darstellung
+- WMS-TileLayer-Integration — nutzt `WmsRequestBuilder` aus Phase D, um `TileLayer`-Konfigurationen mit SLD-Style-Parametern zu erzeugen
 - Dabei gelten die Architekturgrenze (architecture.md: Adapter konsumiert Core-Modell, kein all-or-nothing Rendering) und das flutter_map-Risiko (concept.md: flutter_map ist keine generische OGC-Rendering-Engine)
 
 #### C5: CI und Publish
@@ -175,18 +185,16 @@ Mögliche Richtung, aber **kein fester Planpunkt**:
 
 ## Phase D: WMS-Interop
 
-Helfer für WMS-nahe Workflows. Kann im IO-Package oder als eigenes Modul leben.
+Helfer für WMS-nahe Workflows. Lebt im IO-Package oder als eigenes Package — **ohne** `flutter_map`-Dependency.
 
 ### D1: WMS-Request-Helfer
 
 - [ ] `WmsRequestBuilder` — baut GetMap-URLs aus Layer-Name, Bounding-Box, Größe, SRS
+- [ ] GetMap-URL mit eingebettetem SLD_BODY-Parameter
 - [ ] `WmsCapabilitiesParser` — liest GetCapabilities-Response und extrahiert verfügbare Layer und zugehörige Style-Namen
 - [ ] `WmsStyleResolver` — verknüpft SLD-Styles mit WMS-Layern
 
-### D2: SLD-basierte Layer-Konfiguration
-
-- [ ] SLD-Dokument → `TileLayer`-Konfiguration für `flutter_map` (Style-Parameter im WMS-Request)
-- [ ] GetMap-URL mit eingebettetem SLD_BODY-Parameter
+**Hinweis**: Die Übersetzung von WMS-URLs in `flutter_map`-`TileLayer`-Konfiguration gehört in Phase C (Flutter-Adapter), nicht hierher. Phase D liefert nur die plattformneutralen URL-/Request-Bausteine.
 
 ---
 
@@ -194,7 +202,7 @@ Helfer für WMS-nahe Workflows. Kann im IO-Package oder als eigenes Modul leben.
 
 - Client-seitiges Raster-Rendering — erfordert Rohdaten (Pixelwerte), nicht mit vorgerenderten WMS-Kacheln möglich (siehe concept.md Risiken)
 - Spatial-Filter (`Intersects`, `Within`, `DWithin`, etc.)
-- Vollständige SE-Funktionen (`Categorize`, `Interpolate`, `Recode`)
+- Zusammengesetzte Expressions (`Concatenate`, `FormatNumber`, `Categorize`, `Interpolate`, `Recode`)
 - CSS-basierte Styles (GeoServer-eigene Alternative zu SLD)
 
 ## Release-Strategie
