@@ -128,12 +128,12 @@ Bei erfolgreichem Laden liefert das IO-Package `SldLoadSuccess(parseResult)`. Be
 
 Strukturiertes Parsing von GeoServer `<VendorOption>` Elementen. Erster Scope: `RasterSymbolizer`. Das Modell wird bewusst so angelegt, dass es später auf beliebige Symbolizer-Typen erweitert werden kann, ohne Breaking Changes.
 
-- [ ] `VendorOption` Domain-Modell (`name`, `value`) — als eigenständige Klasse in `model/vendor_option.dart`, nicht an `RasterSymbolizer` gebunden
-- [ ] Parser: `<VendorOption name="...">value</VendorOption>` → typisiertes Modell
-- [ ] `VendorOption`-Liste auf `RasterSymbolizer` als erstes Einsatzfeld (additiv zu `extensions`)
-- [ ] Rückwärtskompatibel: `ExtensionNode`-Erfassung bleibt für alle nicht als `VendorOption` erkannten Elemente
-- [ ] Spätere Erweiterbarkeit: `VendorOption`-Listen können bei Bedarf auf `Rule`, `UserStyle` etc. ergänzt werden — das Domain-Modell ist dafür vorbereitet
-- [ ] Unit-Tests
+- [x] `VendorOption` Domain-Modell (`name`, `value`) — als eigenständige Klasse in `model/vendor_option.dart`, nicht an `RasterSymbolizer` gebunden
+- [x] Parser: `<VendorOption name="...">value</VendorOption>` → typisiertes Modell
+- [x] `VendorOption`-Liste auf `RasterSymbolizer` als erstes Einsatzfeld (additiv zu `extensions`)
+- [x] Rückwärtskompatibel: `ExtensionNode`-Erfassung bleibt für alle nicht als `VendorOption` erkannten Elemente
+- [x] Spätere Erweiterbarkeit: `VendorOption`-Listen können bei Bedarf auf `Rule`, `UserStyle` etc. ergänzt werden — das Domain-Modell ist dafür vorbereitet
+- [x] Unit-Tests
 
 ---
 

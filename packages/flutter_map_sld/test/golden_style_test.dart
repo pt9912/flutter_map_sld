@@ -376,25 +376,26 @@ void main() {
       expect(result.hasErrors, isFalse);
     });
 
-    test('preserves vendor extension nodes', () {
+    test('parses VendorOption elements into typed model', () {
       final rs = doc.selectRasterSymbolizers().first;
-      expect(rs.extensions, hasLength(2));
+      expect(rs.vendorOptions, hasLength(2));
 
-      expect(rs.extensions[0].localName, 'VendorOption');
-      expect(rs.extensions[0].attributes['name'], 'renderingMode');
-      expect(rs.extensions[0].text, 'quality');
+      expect(rs.vendorOptions[0].name, 'renderingMode');
+      expect(rs.vendorOptions[0].value, 'quality');
 
-      expect(rs.extensions[1].localName, 'VendorOption');
-      expect(rs.extensions[1].attributes['name'], 'customParam');
-      expect(rs.extensions[1].text, '42');
+      expect(rs.vendorOptions[1].name, 'customParam');
+      expect(rs.vendorOptions[1].value, '42');
     });
 
-    test('reports info issues for unknown elements', () {
+    test('VendorOptions are not in extensions', () {
+      final rs = doc.selectRasterSymbolizers().first;
+      expect(rs.extensions, isEmpty);
+    });
+
+    test('no unknown-element issues for VendorOption', () {
       final unknownIssues =
           result.issues.where((i) => i.code == 'unknown-element').toList();
-      expect(unknownIssues, hasLength(2));
-      expect(unknownIssues.every((i) => i.severity == SldIssueSeverity.info),
-          isTrue);
+      expect(unknownIssues, isEmpty);
     });
 
     test('color map is still parsed correctly', () {

@@ -4,6 +4,7 @@ import 'color_map.dart';
 import 'contrast_enhancement.dart';
 import 'extension_node.dart';
 import 'shaded_relief.dart';
+import 'vendor_option.dart';
 
 /// Styling parameters for raster data.
 class RasterSymbolizer {
@@ -13,8 +14,10 @@ class RasterSymbolizer {
     this.colorMap,
     this.contrastEnhancement,
     this.shadedRelief,
+    List<VendorOption> vendorOptions = const [],
     List<ExtensionNode> extensions = const [],
-  }) : extensions = List.unmodifiable(extensions);
+  })  : vendorOptions = List.unmodifiable(vendorOptions),
+        extensions = List.unmodifiable(extensions);
 
   /// Overall opacity from 0.0 (transparent) to 1.0 (opaque).
   final double? opacity;
@@ -31,6 +34,9 @@ class RasterSymbolizer {
   /// Shaded relief rendering parameters.
   final ShadedRelief? shadedRelief;
 
+  /// Parsed `<VendorOption>` elements (unmodifiable).
+  final List<VendorOption> vendorOptions;
+
   /// Unrecognized child elements preserved for debugging or future use
   /// (unmodifiable).
   final List<ExtensionNode> extensions;
@@ -44,6 +50,7 @@ class RasterSymbolizer {
           colorMap == other.colorMap &&
           contrastEnhancement == other.contrastEnhancement &&
           shadedRelief == other.shadedRelief &&
+          deepListEquals(vendorOptions, other.vendorOptions) &&
           deepListEquals(extensions, other.extensions);
 
   @override
@@ -53,6 +60,7 @@ class RasterSymbolizer {
         colorMap,
         contrastEnhancement,
         shadedRelief,
+        Object.hashAll(vendorOptions),
         Object.hashAll(extensions),
       );
 }

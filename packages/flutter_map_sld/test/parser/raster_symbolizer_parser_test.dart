@@ -419,7 +419,7 @@ void main() {
       expect(issues.first.code, 'invalid-opacity');
     });
 
-    test('captures unknown children as ExtensionNodes', () {
+    test('parses VendorOption into typed model', () {
       final el = _el(
         '<RasterSymbolizer>'
         '<Opacity>1.0</Opacity>'
@@ -429,16 +429,56 @@ void main() {
       final issues = <SldParseIssue>[];
       final rs = parseRasterSymbolizer(el, issues, '/test');
 
-      expect(rs.extensions, hasLength(1));
-      expect(rs.extensions.first.localName, 'VendorOption');
-      expect(rs.extensions.first.text, '42');
-      expect(rs.extensions.first.attributes['name'], 'custom');
-      expect(rs.extensions.first.rawXml, contains('VendorOption'));
+      expect(rs.vendorOptions, hasLength(1));
+      expect(rs.vendorOptions.first.name, 'custom');
+      expect(rs.vendorOptions.first.value, '42');
+      expect(rs.extensions, isEmpty);
+      expect(issues, isEmpty);
+    });
 
-      // Info issue reported.
+    test('parses multiple VendorOptions', () {
+      final el = _el(
+        '<RasterSymbolizer>'
+        '<VendorOption name="a">1</VendorOption>'
+        '<VendorOption name="b">2</VendorOption>'
+        '</RasterSymbolizer>',
+      );
+      final issues = <SldParseIssue>[];
+      final rs = parseRasterSymbolizer(el, issues, '/test');
+
+      expect(rs.vendorOptions, hasLength(2));
+      expect(rs.vendorOptions[0].name, 'a');
+      expect(rs.vendorOptions[1].name, 'b');
+    });
+
+    test('warns on VendorOption without name', () {
+      final el = _el(
+        '<RasterSymbolizer>'
+        '<VendorOption>value</VendorOption>'
+        '</RasterSymbolizer>',
+      );
+      final issues = <SldParseIssue>[];
+      final rs = parseRasterSymbolizer(el, issues, '/test');
+
+      expect(rs.vendorOptions, isEmpty);
+      expect(issues, hasLength(1));
+      expect(issues.first.code, 'vendor-option-missing-name');
+    });
+
+    test('captures unknown children as ExtensionNodes', () {
+      final el = _el(
+        '<RasterSymbolizer>'
+        '<Opacity>1.0</Opacity>'
+        '<CustomElement>x</CustomElement>'
+        '</RasterSymbolizer>',
+      );
+      final issues = <SldParseIssue>[];
+      final rs = parseRasterSymbolizer(el, issues, '/test');
+
+      expect(rs.extensions, hasLength(1));
+      expect(rs.extensions.first.localName, 'CustomElement');
       expect(issues, hasLength(1));
       expect(issues.first.code, 'unknown-element');
-      expect(issues.first.severity, SldIssueSeverity.info);
     });
 
     test('works with se: namespace', () {

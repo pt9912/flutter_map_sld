@@ -17,5 +17,6 @@ export 'src/model/rule.dart';
 export 'src/model/shaded_relief.dart';
 export 'src/model/sld_document.dart';
 export 'src/model/style.dart';
+export 'src/model/vendor_option.dart';
 export 'src/validation/validation_result.dart';
 export 'src/validation/validator.dart';

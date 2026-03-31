@@ -7,6 +7,7 @@ import '../../model/extension_node.dart';
 import '../../model/issue.dart';
 import '../../model/raster_symbolizer.dart';
 import '../../model/shaded_relief.dart';
+import '../../model/vendor_option.dart';
 import '../xml_helpers.dart';
 
 /// Child element names that are actively parsed in this version.
@@ -295,12 +296,28 @@ RasterSymbolizer parseRasterSymbolizer(
       ? parseShadedRelief(srEl, issues, '$path/ShadedRelief')
       : null;
 
-  // Collect non-parsed children as ExtensionNodes.
-  // Both unknown vendor elements and known-but-not-yet-implemented OGC
-  // elements are preserved, per the conservation principle.
+  // Parse VendorOption elements and collect remaining as ExtensionNodes.
+  final vendorOptions = <VendorOption>[];
   final extensions = <ExtensionNode>[];
   for (final child in element.childElements) {
     if (_parsedRasterChildren.contains(child.localName)) continue;
+
+    // Parse <VendorOption name="...">value</VendorOption> into typed model.
+    if (child.localName == 'VendorOption') {
+      final name = stringAttr(child, 'name');
+      final value = child.innerText.trim();
+      if (name != null && name.isNotEmpty) {
+        vendorOptions.add(VendorOption(name: name, value: value));
+      } else {
+        issues.add(SldParseIssue(
+          severity: SldIssueSeverity.warning,
+          code: 'vendor-option-missing-name',
+          message: 'VendorOption without name attribute',
+          location: '$path/VendorOption',
+        ));
+      }
+      continue;
+    }
 
     extensions.add(_toExtensionNode(child));
 
@@ -329,6 +346,7 @@ RasterSymbolizer parseRasterSymbolizer(
     colorMap: colorMap,
     contrastEnhancement: contrastEnhancement,
     shadedRelief: shadedRelief,
+    vendorOptions: vendorOptions,
     extensions: extensions,
   );
 }
