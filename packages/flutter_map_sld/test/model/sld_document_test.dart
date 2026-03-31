@@ -101,6 +101,56 @@ void main() {
       expect(doc.selectRasterSymbolizers(), hasLength(1));
     });
 
+    test('selectRasterSymbolizersAtScale filters by scale', () {
+      final doc = SldDocument(
+        layers: [
+          SldLayer(
+            name: 'dem',
+            styles: [
+              UserStyle(
+                featureTypeStyles: [
+                  FeatureTypeStyle(
+                    rules: [
+                      Rule(
+                        name: 'overview',
+                        maxScaleDenominator: 500000,
+                        rasterSymbolizer: RasterSymbolizer(opacity: 1.0),
+                      ),
+                      Rule(
+                        name: 'detail',
+                        minScaleDenominator: 500000,
+                        rasterSymbolizer: RasterSymbolizer(opacity: 0.8),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+
+      // Below 500000 — only overview matches
+      final low = doc.selectRasterSymbolizersAtScale(100000);
+      expect(low, hasLength(1));
+      expect(low.first.opacity, 1.0);
+
+      // At 500000 — only detail matches (max is exclusive, min is inclusive)
+      final boundary = doc.selectRasterSymbolizersAtScale(500000);
+      expect(boundary, hasLength(1));
+      expect(boundary.first.opacity, 0.8);
+
+      // Above 500000 — only detail matches
+      final high = doc.selectRasterSymbolizersAtScale(1000000);
+      expect(high, hasLength(1));
+      expect(high.first.opacity, 0.8);
+    });
+
+    test('selectRasterSymbolizersAtScale returns empty for no layers', () {
+      final doc = SldDocument(layers: []);
+      expect(doc.selectRasterSymbolizersAtScale(50000), isEmpty);
+    });
+
     test('equal documents are ==', () {
       final a = SldDocument(version: '1.0.0', layers: []);
       final b = SldDocument(version: '1.0.0', layers: []);

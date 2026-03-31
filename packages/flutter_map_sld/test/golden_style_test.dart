@@ -239,7 +239,59 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
-  // 10. Vendor Extensions
+  // 10. Scale-Dependent Rules
+  // -----------------------------------------------------------------------
+  group('Scale-Dependent Rules', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('scale_dependent_rules.sld'));
+
+    test('parses without errors', () {
+      expect(doc.version, '1.0.0');
+      expect(doc.layers, hasLength(1));
+      expect(doc.layers.first.name, 'dem');
+    });
+
+    test('has two rules with scale denominators', () {
+      final rules =
+          doc.layers.first.styles.first.featureTypeStyles.first.rules;
+      expect(rules, hasLength(2));
+
+      expect(rules[0].name, 'overview');
+      expect(rules[0].minScaleDenominator, isNull);
+      expect(rules[0].maxScaleDenominator, 500000);
+
+      expect(rules[1].name, 'detail');
+      expect(rules[1].minScaleDenominator, 500000);
+      expect(rules[1].maxScaleDenominator, isNull);
+    });
+
+    test('selectRasterSymbolizersAtScale returns overview at small scale', () {
+      final rs = doc.selectRasterSymbolizersAtScale(10000);
+      expect(rs, hasLength(1));
+      expect(rs.first.colorMap!.entries, hasLength(2));
+    });
+
+    test('selectRasterSymbolizersAtScale returns detail at large scale', () {
+      final rs = doc.selectRasterSymbolizersAtScale(1000000);
+      expect(rs, hasLength(1));
+      expect(rs.first.colorMap!.entries, hasLength(3));
+    });
+
+    test('at boundary 500000 only detail matches', () {
+      final rs = doc.selectRasterSymbolizersAtScale(500000);
+      expect(rs, hasLength(1));
+      // 500000 is exclusive upper for overview, inclusive lower for detail
+      expect(rs.first.colorMap!.entries, hasLength(3));
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 11. Vendor Extensions
   // -----------------------------------------------------------------------
   group('Vendor Extensions', () {
     late SldParseResult result;

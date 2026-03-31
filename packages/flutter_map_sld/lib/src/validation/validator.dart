@@ -2,6 +2,7 @@ import '../model/issue.dart';
 import '../model/sld_document.dart';
 import 'rules/color_map_rules.dart';
 import 'rules/raster_rules.dart';
+import 'rules/scale_rules.dart';
 import 'validation_result.dart';
 
 /// Validates a parsed [SldDocument] against domain-level rules.
@@ -33,6 +34,8 @@ class SldValidator {
           for (var ri = 0; ri < fts.rules.length; ri++) {
             final rule = fts.rules[ri];
             final rulePath = '$ftsPath.rules[$ri]';
+
+            validateScaleDenominators(rule, issues, rulePath);
 
             final rs = rule.rasterSymbolizer;
             if (rs != null) {

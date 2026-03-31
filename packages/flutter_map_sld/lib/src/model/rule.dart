@@ -24,6 +24,19 @@ class Rule {
   /// Raster symbolizer, if present.
   final RasterSymbolizer? rasterSymbolizer;
 
+  /// Whether this rule applies at the given [scaleDenominator].
+  ///
+  /// Returns `true` if no scale filter is set, or if [scaleDenominator] falls
+  /// within the range. Bounds follow OGC convention: inclusive lower bound,
+  /// exclusive upper bound — i.e. `min <= scale < max`.
+  bool appliesAtScale(double scaleDenominator) {
+    final min = minScaleDenominator;
+    final max = maxScaleDenominator;
+    if (min != null && scaleDenominator < min) return false;
+    if (max != null && scaleDenominator >= max) return false;
+    return true;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

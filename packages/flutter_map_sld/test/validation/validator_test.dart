@@ -250,6 +250,93 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // Scale denominator validation
+  // -----------------------------------------------------------------------
+  group('scale denominator validation', () {
+    SldDocument docWithScale({double? min, double? max}) => SldDocument(
+          layers: [
+            SldLayer(
+              name: 'test',
+              styles: [
+                UserStyle(
+                  featureTypeStyles: [
+                    FeatureTypeStyle(rules: [
+                      Rule(
+                        minScaleDenominator: min,
+                        maxScaleDenominator: max,
+                        rasterSymbolizer: RasterSymbolizer(),
+                      ),
+                    ]),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+    test('min >= max is an error', () {
+      final doc = docWithScale(min: 100000, max: 50000);
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      final issue =
+          result.issues.firstWhere((i) => i.code == 'empty-scale-range');
+      expect(issue.severity, SldIssueSeverity.error);
+      expect(issue.location, contains('rules[0]'));
+    });
+
+    test('min == max is an error', () {
+      final doc = docWithScale(min: 50000, max: 50000);
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.any((i) => i.code == 'empty-scale-range'),
+        isTrue,
+      );
+    });
+
+    test('min < max is valid', () {
+      final doc = docWithScale(min: 50000, max: 100000);
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'empty-scale-range'),
+        isEmpty,
+      );
+    });
+
+    test('only min is valid', () {
+      final doc = docWithScale(min: 50000);
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'empty-scale-range'),
+        isEmpty,
+      );
+    });
+
+    test('only max is valid', () {
+      final doc = docWithScale(max: 100000);
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'empty-scale-range'),
+        isEmpty,
+      );
+    });
+
+    test('no scale bounds is valid', () {
+      final doc = docWithScale();
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'empty-scale-range'),
+        isEmpty,
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Location paths
   // -----------------------------------------------------------------------
   group('location paths', () {

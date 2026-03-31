@@ -3,6 +3,7 @@ import '_equality.dart';
 import 'issue.dart';
 import 'layer.dart';
 import 'raster_symbolizer.dart';
+import 'rule.dart';
 
 /// A parsed SLD/SE document.
 class SldDocument {
@@ -38,6 +39,27 @@ class SldDocument {
       for (final style in layer.styles) {
         for (final fts in style.featureTypeStyles) {
           for (final rule in fts.rules) {
+            final rs = rule.rasterSymbolizer;
+            if (rs != null) {
+              result.add(rs);
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /// Like [selectRasterSymbolizers], but only includes symbolizers from rules
+  /// that apply at the given [scaleDenominator] (see [Rule.appliesAtScale]).
+  List<RasterSymbolizer> selectRasterSymbolizersAtScale(
+      double scaleDenominator) {
+    final result = <RasterSymbolizer>[];
+    for (final layer in layers) {
+      for (final style in layer.styles) {
+        for (final fts in style.featureTypeStyles) {
+          for (final rule in fts.rules) {
+            if (!rule.appliesAtScale(scaleDenominator)) continue;
             final rs = rule.rasterSymbolizer;
             if (rs != null) {
               result.add(rs);

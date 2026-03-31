@@ -17,13 +17,13 @@ Grundlage: [Concept](docs/concept.md), [Architecture](docs/architecture.md), [PL
 
 Die Felder `minScaleDenominator` / `maxScaleDenominator` auf `Rule` sind seit v0.1.0 geparst, aber es gibt keine Auswertungslogik.
 
-- [ ] `Rule.appliesAtScale(double scaleDenominator)` → `bool`
+- [x] `Rule.appliesAtScale(double scaleDenominator)` → `bool`
   - `true` wenn kein Scale-Filter gesetzt oder der Wert innerhalb der Grenzen liegt
   - Grenzen sind inklusiv-unten, exklusiv-oben (OGC-Konvention)
-- [ ] `SldDocument.selectRasterSymbolizersAtScale(double scaleDenominator)` → filtert zusätzlich nach Maßstab
-- [ ] Validierungsregel: `minScaleDenominator >= maxScaleDenominator` als **Error** — ein leerer Bereich bedeutet, dass die Regel nie matchen kann; das ist kein Grenzfall, sondern ein Konfigurationsfehler
-- [ ] Unit-Tests: ohne Grenzen, nur min, nur max, beide, Grenzwerte (inklusiv/exklusiv), invalide Kombination
-- [ ] Golden-Test: SLD-Fixture mit maßstabsabhängigen Regeln
+- [x] `SldDocument.selectRasterSymbolizersAtScale(double scaleDenominator)` → filtert zusätzlich nach Maßstab
+- [x] Validierungsregel: `minScaleDenominator >= maxScaleDenominator` als **Error** — ein leerer Bereich bedeutet, dass die Regel nie matchen kann; das ist kein Grenzfall, sondern ein Konfigurationsfehler
+- [x] Unit-Tests: ohne Grenzen, nur min, nur max, beide, Grenzwerte (inklusiv/exklusiv), invalide Kombination
+- [x] Golden-Test: SLD-Fixture mit maßstabsabhängigen Regeln
 
 ## Phase B: Erweiterte Raster-Elemente
 
