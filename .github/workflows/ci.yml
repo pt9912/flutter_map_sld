@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build IO analyze target
-        run: docker build -f packages/flutter_map_sld_io/Dockerfile --target analyze -t flutter_map_sld_io:analyze .
+        run: docker build --target io-analyze -t flutter_map_sld_io:analyze .
 
   test-io:
     name: Test IO
@@ -74,4 +74,4 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build IO test target
-        run: docker build -f packages/flutter_map_sld_io/Dockerfile --target test -t flutter_map_sld_io:test .
+        run: docker build --target io-test -t flutter_map_sld_io:test .

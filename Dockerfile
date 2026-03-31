@@ -1,3 +1,6 @@
+## ---------------------------------------------------------------------------
+## Core: flutter_map_sld
+## ---------------------------------------------------------------------------
 FROM dart:stable AS base
 
 WORKDIR /app
@@ -24,4 +27,39 @@ RUN dart doc
 
 # Publish dry-run
 FROM base AS publish-check
+RUN dart pub publish --dry-run
+
+## ---------------------------------------------------------------------------
+## IO: flutter_map_sld_io
+## ---------------------------------------------------------------------------
+FROM dart:stable AS io-base
+
+WORKDIR /app
+
+# Copy core package (dependency)
+COPY packages/flutter_map_sld/pubspec.yaml packages/flutter_map_sld/pubspec.yaml
+COPY packages/flutter_map_sld/lib/ packages/flutter_map_sld/lib/
+
+# Copy IO package pubspec first for dependency caching
+COPY packages/flutter_map_sld_io/pubspec.yaml packages/flutter_map_sld_io/pubspec.yaml
+WORKDIR /app/packages/flutter_map_sld_io
+RUN dart pub get
+
+# Copy the rest of the IO package
+COPY packages/flutter_map_sld_io/ /app/packages/flutter_map_sld_io/
+
+# Analyze
+FROM io-base AS io-analyze
+RUN dart analyze
+
+# Test
+FROM io-base AS io-test
+RUN dart test
+
+# Doc
+FROM io-base AS io-doc
+RUN dart doc
+
+# Publish dry-run
+FROM io-base AS io-publish-check
 RUN dart pub publish --dry-run
