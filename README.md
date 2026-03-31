@@ -98,6 +98,24 @@ docker build --target io-test -t flutter_map_sld_io:test .
 docker build --target io-doc -t flutter_map_sld_io:doc .
 ```
 
+### Manueller Publish via Docker
+
+Für den allerersten Publish eines neuen Packages (automatisiertes Publishing erfordert eine existierende Version auf pub.dev):
+
+```bash
+# Core
+docker build --target publish-check -t flutter_map_sld:publish .
+docker run --rm -it --net=host flutter_map_sld:publish sh -c 'dart pub publish'
+
+# IO-Package
+docker build --target io-publish-check -t flutter_map_sld_io:publish .
+docker run --rm -it --net=host flutter_map_sld_io:publish sh -c 'dart pub publish'
+```
+
+Automated-Publishing-Konfiguration:
+- Core: https://pub.dev/packages/flutter_map_sld/admin
+- IO: https://pub.dev/packages/flutter_map_sld_io/admin
+
 Mit lokalem Dart SDK (>=3.0.0):
 
 ```bash
@@ -117,4 +135,4 @@ dart pub get && dart analyze && dart test
 
 ## Status
 
-`flutter_map_sld` v0.1.0 ist auf pub.dev veröffentlicht. `flutter_map_sld_io` v0.1.0 ist implementiert. Das Flutter-Adapter-Package `flutter_map_sld_flutter_map` ist noch geplant.
+`flutter_map_sld` v0.2.0 und `flutter_map_sld_io` v0.1.0 sind auf pub.dev veröffentlicht. Das Flutter-Adapter-Package `flutter_map_sld_flutter_map` ist noch geplant.

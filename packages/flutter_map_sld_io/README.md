@@ -43,3 +43,16 @@ switch (urlResult) {
 | `httpError` | Non-200 HTTP status code |
 | `encodingError` | Response is not valid UTF-8 |
 | `ioError` | Other filesystem errors |
+
+## Publishing
+
+Automated publishing is configured via GitHub Actions for tag pattern `flutter_map_sld_io-v*`.
+
+Configuration: https://pub.dev/packages/flutter_map_sld_io/admin
+
+For the first version (or if automated publishing is unavailable), publish manually via Docker:
+
+```bash
+docker build --target io-publish-check -t flutter_map_sld_io:publish .
+docker run --rm -it --net=host flutter_map_sld_io:publish sh -c 'dart pub publish'
+```
