@@ -9,19 +9,22 @@ Grundlage: [Concept](docs/concept.md), [Architecture](docs/architecture.md), [PL
 ## Abhängigkeiten zwischen Phasen
 
 ```
-Phase A (Vektor-Symbolizer)  ──► unabhängig, kann sofort starten
-Phase B (Filter/Expressions) ──► unabhängig vom Vektor-Ausbau, nützlich für beide
-Phase C (Flutter-Adapter)    ──► profitiert von A+B, braucht konkreten Use-Case
-Phase D (WMS-Interop)        ──► unabhängig, kann parallel starten
+Phase A (Geometrie-Symbolizer) ──► unabhängig, kann sofort starten
+Phase B (Filter/Expressions)   ──► unabhängig von A, nützlich für beide
+  └─ TextSymbolizer             ──► Teil von B, weil label eine Expression ist
+Phase C (Flutter-Adapter)      ──► profitiert von A+B, braucht konkreten Use-Case
+Phase D (WMS-Interop)          ──► unabhängig, kann parallel starten
 ```
 
 Phase A und B erweitern den Core (`flutter_map_sld`), Phase C ist ein neues Package, Phase D kann im IO-Package oder als eigenes Package leben.
 
+**Wichtige Design-Entscheidung**: `TextSymbolizer` wird in Phase B statt Phase A implementiert, weil `<Label>` im OGC-Standard eine Expression ist (`<PropertyName>`, `<Literal>`, Verkettungen). Ein `TextSymbolizer` ohne Expression-Modell kann reale SLDs nicht abbilden und würde einen Breaking Change in v0.4.0 erzwingen.
+
 ---
 
-## Phase A: Vektor-Symbolizer
+## Phase A: Geometrie-Symbolizer (Point, Line, Polygon)
 
-Erweitert den Core um die vier OGC-Vektor-Symbolizer. Der Parser folgt dem etablierten Pattern: Domain-Modell → Parser → Validierung → Tests.
+Erweitert den Core um die drei OGC-Geometrie-Symbolizer. TextSymbolizer folgt in Phase B. Der Parser folgt dem etablierten Pattern: Domain-Modell → Parser → Validierung → Tests.
 
 ### A1: Domain-Modelle
 
@@ -33,10 +36,6 @@ Erweitert den Core um die vier OGC-Vektor-Symbolizer. Der Parser folgt dem etabl
 - [ ] `PointSymbolizer` (`graphic`)
 - [ ] `LineSymbolizer` (`stroke`)
 - [ ] `PolygonSymbolizer` (`fill`, `stroke`)
-- [ ] `TextSymbolizer` (`label`, `font`, `fill`, `halo`, `placement`)
-- [ ] `Font` (`family`, `style`, `weight`, `size`)
-- [ ] `Halo` (`radius`, `fill`)
-- [ ] `LabelPlacement` (`pointPlacement`, `linePlacement`)
 
 ### A2: Parser
 
@@ -44,9 +43,8 @@ Erweitert den Core um die vier OGC-Vektor-Symbolizer. Der Parser folgt dem etabl
 - [ ] `PointSymbolizerParser`
 - [ ] `LineSymbolizerParser`
 - [ ] `PolygonSymbolizerParser`
-- [ ] `TextSymbolizerParser` (inkl. Font, Halo, LabelPlacement)
-- [ ] `Rule` erweitern: `pointSymbolizer`, `lineSymbolizer`, `polygonSymbolizer`, `textSymbolizer` (alle optional, additiv zu `rasterSymbolizer`)
-- [ ] `SldDocument` Convenience-Methoden: `selectPointSymbolizers()`, `selectLineSymbolizers()`, etc.
+- [ ] `Rule` erweitern: `pointSymbolizer`, `lineSymbolizer`, `polygonSymbolizer` (alle optional, additiv zu `rasterSymbolizer`)
+- [ ] `SldDocument` Convenience-Methoden: `selectPointSymbolizers()`, `selectLineSymbolizers()`, `selectPolygonSymbolizers()`
 
 ### A3: Validierung
 
@@ -54,22 +52,45 @@ Erweitert den Core um die vier OGC-Vektor-Symbolizer. Der Parser folgt dem etabl
 - [ ] Fill: `opacity` 0.0–1.0
 - [ ] Graphic: `size` nicht negativ, `rotation` beliebig
 - [ ] Mark: `wellKnownName` gegen bekannte Werte prüfen (info bei unbekanntem)
-- [ ] TextSymbolizer: Font-Size nicht negativ, Halo-Radius nicht negativ
 
 ### A4: Tests und Fixtures
 
 - [ ] Unit-Tests pro Modell (Konstruktion, Equality)
 - [ ] Parser-Tests pro Symbolizer (XML-Fragmente)
-- [ ] Golden-Tests: SLD-Fixtures mit Point, Line, Polygon, Text aus dem [GeoServer Vector Cookbook](https://docs.geoserver.org/stable/en/user/styling/sld/cookbook/)
+- [ ] Golden-Tests: SLD-Fixtures mit Point, Line, Polygon aus dem [GeoServer Vector Cookbook](https://docs.geoserver.org/stable/en/user/styling/sld/cookbook/)
 - [ ] Gemischte SLD: Rules mit Raster- und Vektor-Symbolizern
 
 ---
 
-## Phase B: Filter und Expressions
+## Phase B: Filter, Expressions und TextSymbolizer
 
-OGC Filter Encoding erlaubt regelbasierte Stilzuweisung anhand von Feature-Properties. Erster Scope: Vergleichsoperatoren und logische Verknüpfungen. Keine Spatial-Filter im ersten Schritt.
+OGC Filter Encoding erlaubt regelbasierte Stilzuweisung anhand von Feature-Properties. OGC Expressions werden auch für `TextSymbolizer.label` und perspektivisch für parametrische Werte in Symbolizern gebraucht. Deshalb gehören Expressions, Filter und TextSymbolizer in dieselbe Phase.
 
-### B1: Domain-Modelle
+Erster Scope: Vergleichsoperatoren und logische Verknüpfungen. Keine Spatial-Filter im ersten Schritt.
+
+### B1: Expression-Modell
+
+- [ ] `Expression` als sealed class
+- [ ] `PropertyName` (`name`) — Verweis auf ein Feature-Attribut
+- [ ] `Literal` (`value`) — konstanter Wert
+- [ ] `ExpressionParser` — `<PropertyName>`, `<Literal>`
+- [ ] `Expression.evaluate(Map<String, dynamic> properties)` → `dynamic`
+
+### B2: TextSymbolizer
+
+Hängt von B1 ab, weil `<Label>` eine Expression (oder Verkettung) enthält.
+
+- [ ] `TextSymbolizer` (`label: Expression`, `font`, `fill`, `halo`, `placement`)
+- [ ] `Font` (`family`, `style`, `weight`, `size`)
+- [ ] `Halo` (`radius`, `fill`)
+- [ ] `LabelPlacement` (`pointPlacement`, `linePlacement`)
+- [ ] `TextSymbolizerParser` (inkl. Font, Halo, LabelPlacement)
+- [ ] `Rule` erweitern: `textSymbolizer` (optional, additiv)
+- [ ] `SldDocument.selectTextSymbolizers()`
+- [ ] Validierung: Font-Size nicht negativ, Halo-Radius nicht negativ
+- [ ] Golden-Tests: SLD-Fixtures mit Text-Labels aus dem GeoServer Vector Cookbook
+
+### B3: Filter-Modell
 
 - [ ] `Filter` als sealed class (Basis für alle Filtertypen)
 - [ ] Vergleichsoperatoren: `PropertyIsEqualTo`, `PropertyIsNotEqualTo`, `PropertyIsLessThan`, `PropertyIsGreaterThan`, `PropertyIsLessThanOrEqualTo`, `PropertyIsGreaterThanOrEqualTo`
@@ -77,27 +98,31 @@ OGC Filter Encoding erlaubt regelbasierte Stilzuweisung anhand von Feature-Prope
 - [ ] `PropertyIsLike` (`pattern`, `wildCard`, `singleChar`, `escapeChar`)
 - [ ] `PropertyIsNull`
 - [ ] Logische Operatoren: `And`, `Or`, `Not`
-- [ ] Expressions: `PropertyName`, `Literal`
 - [ ] `Rule.filter` als optionales Feld (additiv zu Scale-Filtern)
 
-### B2: Parser
+### B4: Filter-Parser
 
 - [ ] `FilterParser` — Einstieg über `<ogc:Filter>` / `<Filter>`
-- [ ] `ExpressionParser` — `<PropertyName>`, `<Literal>`
 - [ ] Vergleichsoperator-Parser
 - [ ] Logische Operator-Parser (rekursiv)
 - [ ] Integration in `RuleParser`
 
-### B3: Evaluation
+### B5: Evaluation und Selektion
 
 - [ ] `Filter.evaluate(Map<String, dynamic> properties)` → `bool`
 - [ ] `Rule.appliesTo(Map<String, dynamic> properties, {double? scaleDenominator})` → `bool` — kombiniert Filter und Scale-Check
-- [ ] `SldDocument.selectSymbolizersFor(Map<String, dynamic> properties, {double? scaleDenominator})` — gibt passende Symbolizer für ein Feature zurück
+- [ ] `SldDocument.selectMatchingRules(Map<String, dynamic> properties, {double? scaleDenominator})` → `List<Rule>` — gibt die passenden Rules mit vollem Kontext zurück (Regelreihenfolge bleibt erhalten, Symbolizer-Zugriff über `rule.pointSymbolizer`, `rule.lineSymbolizer`, etc.)
 
-### B4: Tests
+**Design-Entscheidung**: Die Selektions-API gibt `Rule`-Objekte zurück, nicht flache Symbolizer-Listen. Gründe:
+- Eine Rule kann mehrere Symbolizer-Typen parallel tragen
+- Regelreihenfolge hat Semantik (Zeichenreihenfolge)
+- Layer-/Style-Kontext bleibt über den Aufrufer nachvollziehbar
+- Adapter-Packages können selbst entscheiden, welche Symbolizer sie auswerten
 
-- [ ] Unit-Tests pro Filtertyp
-- [ ] Evaluation-Tests mit Properties
+### B6: Tests
+
+- [ ] Unit-Tests pro Expression- und Filtertyp
+- [ ] Evaluation-Tests mit Properties-Maps
 - [ ] Parser-Tests mit SLD-Fragmenten
 - [ ] Golden-Tests: SLD mit filterbasierter Stilzuweisung
 
@@ -105,34 +130,42 @@ OGC Filter Encoding erlaubt regelbasierte Stilzuweisung anhand von Feature-Prope
 
 ## Phase C: `flutter_map_sld_flutter_map` Adapter-Package
 
-Flutter-spezifischer Adapter für `flutter_map`. Braucht einen konkreten Use-Case als Treiber — die folgenden Punkte sind eine Planungsgrundlage, kein fester Scope.
+Flutter-spezifischer Adapter. Braucht einen konkreten Use-Case als Treiber — die folgenden Punkte sind nach Verbindlichkeit gestaffelt.
 
-### C1: Package-Setup
+### Fester Scope (unabhängig vom Use-Case)
+
+#### C1: Package-Setup
 
 - [ ] `packages/flutter_map_sld_flutter_map/` anlegen
 - [ ] `pubspec.yaml` (Dependency auf `flutter_map_sld`, `flutter_map`, Flutter SDK)
 - [ ] `analysis_options.yaml`
 - [ ] Library-Entrypoint
 
-### C2: Legend-Widget
+#### C2: Asset-Helfer
+
+- [ ] `SldAsset.parseFromAsset(String assetPath)` → `Future<SldParseResult>` (via `rootBundle`)
+- [ ] Flutter-Asset-Zugriff, getrennt vom IO-Package
+
+#### C3: Legend-Widget
 
 - [ ] `SldLegend` Widget — rendert `extractLegend()`-Ergebnis als vertikale Farbskala/Legende
 - [ ] Konfigurierbar: Ausrichtung, Größe, Label-Stil
 - [ ] Raster-ColorMap-Unterstützung (Ramp, Intervals, ExactValues)
 
-### C3: Style-Adapter
+### Offener Scope (use-case-getrieben, noch nicht spezifizierbar)
 
-- [ ] `SldStyleAdapter` — übersetzt Vektor-Symbolizer in `flutter_map`-kompatible Darstellung
-- [ ] `PolygonSymbolizer` → `PolygonLayer`-Optionen (Fill, Stroke)
-- [ ] `LineSymbolizer` → `PolylineLayer`-Optionen (Stroke)
-- [ ] `PointSymbolizer` → `MarkerLayer`-Optionen (Graphic → Icon)
+#### C4: Style-Adapter (Skizze)
 
-### C4: Asset-Helfer
+Vor einer Implementierung muss geklärt werden:
+- **Was ist der Input?** GeoJSON-Features, `flutter_map`-Polygone, oder rohe Geometrien?
+- **Wer evaluiert Filter?** Der Adapter, der Aufrufer, oder eine Pipeline?
+- **Wie tief geht die Übersetzung?** Nur Farbe/Stroke-Breite, oder auch Graphic/Mark-Rendering?
 
-- [ ] `SldAsset.parseFromAsset(String assetPath)` → `Future<SldParseResult>` (via `rootBundle`)
-- [ ] Flutter-Asset-Zugriff, getrennt vom IO-Package
+Mögliche Richtung, aber **kein fester Planpunkt**:
+- `SldStyleAdapter` — übersetzt Vektor-Symbolizer in `flutter_map`-kompatible Darstellung
+- Dabei gelten die Architekturgrenze (architecture.md: Adapter konsumiert Core-Modell, kein all-or-nothing Rendering) und das flutter_map-Risiko (concept.md: flutter_map ist keine generische OGC-Rendering-Engine)
 
-### C5: CI und Publish
+#### C5: CI und Publish
 
 - [ ] Dockerfile-Targets im Root-Dockerfile
 - [ ] CI-Workflow-Jobs
@@ -166,7 +199,7 @@ Helfer für WMS-nahe Workflows. Kann im IO-Package oder als eigenes Modul leben.
 
 ## Release-Strategie
 
-- **v0.3.0** `flutter_map_sld`: Phase A (Vektor-Symbolizer)
-- **v0.4.0** `flutter_map_sld`: Phase B (Filter/Expressions)
-- **v0.1.0** `flutter_map_sld_flutter_map`: Phase C (erster Use-Case-getriebener Release)
+- **v0.3.0** `flutter_map_sld`: Phase A (Geometrie-Symbolizer: Point, Line, Polygon)
+- **v0.4.0** `flutter_map_sld`: Phase B (Filter, Expressions, TextSymbolizer)
+- **v0.1.0** `flutter_map_sld_flutter_map`: Phase C (Legend-Widget + Asset-Helfer; Style-Adapter nach Use-Case)
 - Phase D: Scope und Package-Zuordnung nach Bedarf entscheiden
