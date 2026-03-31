@@ -1,24 +1,26 @@
 import 'package:xml/xml.dart';
 
+import '../../model/channel_selection.dart';
 import '../../model/color_map.dart';
 import '../../model/contrast_enhancement.dart';
 import '../../model/extension_node.dart';
 import '../../model/issue.dart';
 import '../../model/raster_symbolizer.dart';
+import '../../model/shaded_relief.dart';
 import '../xml_helpers.dart';
 
 /// Child element names that are actively parsed in this version.
 const _parsedRasterChildren = {
   'Opacity',
+  'ChannelSelection',
   'ColorMap',
   'ContrastEnhancement',
+  'ShadedRelief',
 };
 
 /// Known-but-not-yet-implemented OGC child elements.
 /// These are preserved as ExtensionNodes (not silently dropped).
 const _knownButUnimplementedRasterChildren = {
-  'ChannelSelection',
-  'ShadedRelief',
   'ImageOutline',
   'Geometry',
   'OverlapBehavior',
@@ -156,6 +158,95 @@ ContrastEnhancement parseContrastEnhancement(
 }
 
 // ---------------------------------------------------------------------------
+// ChannelSelection
+// ---------------------------------------------------------------------------
+
+/// Parses a `<SelectedChannelType>` element (e.g. `<RedChannel>`).
+SelectedChannel? _parseSelectedChannel(
+  XmlElement? element,
+  List<SldParseIssue> issues,
+  String path,
+) {
+  if (element == null) return null;
+
+  final sourceEl = findChild(element, 'SourceChannelName');
+  final channelName = sourceEl?.innerText.trim();
+  if (channelName == null || channelName.isEmpty) {
+    issues.add(SldParseIssue(
+      severity: SldIssueSeverity.warning,
+      code: 'missing-channel-name',
+      message: 'Missing SourceChannelName in <${element.localName}>',
+      location: path,
+    ));
+    return null;
+  }
+
+  final ceEl = findChild(element, 'ContrastEnhancement');
+  final ce = ceEl != null
+      ? parseContrastEnhancement(ceEl, issues, '$path/ContrastEnhancement')
+      : null;
+
+  return SelectedChannel(channelName: channelName, contrastEnhancement: ce);
+}
+
+/// Parses a `<ChannelSelection>` element.
+ChannelSelection parseChannelSelection(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path,
+) {
+  final red = _parseSelectedChannel(
+      findChild(element, 'RedChannel'), issues, '$path/RedChannel');
+  final green = _parseSelectedChannel(
+      findChild(element, 'GreenChannel'), issues, '$path/GreenChannel');
+  final blue = _parseSelectedChannel(
+      findChild(element, 'BlueChannel'), issues, '$path/BlueChannel');
+  final gray = _parseSelectedChannel(
+      findChild(element, 'GrayChannel'), issues, '$path/GrayChannel');
+
+  return ChannelSelection(
+    redChannel: red,
+    greenChannel: green,
+    blueChannel: blue,
+    grayChannel: gray,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ShadedRelief
+// ---------------------------------------------------------------------------
+
+/// Parses a `<ShadedRelief>` element.
+ShadedRelief parseShadedRelief(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path,
+) {
+  final brightnessOnlyText = childText(element, 'BrightnessOnly');
+  final brightnessOnly = brightnessOnlyText == 'true' ||
+      brightnessOnlyText == '1';
+
+  final reliefFactorText = childText(element, 'ReliefFactor');
+  double? reliefFactor;
+  if (reliefFactorText != null) {
+    reliefFactor = double.tryParse(reliefFactorText);
+    if (reliefFactor == null) {
+      issues.add(SldParseIssue(
+        severity: SldIssueSeverity.warning,
+        code: 'invalid-relief-factor',
+        message: 'Invalid ReliefFactor value: "$reliefFactorText"',
+        location: '$path/ReliefFactor',
+      ));
+    }
+  }
+
+  return ShadedRelief(
+    brightnessOnly: brightnessOnly,
+    reliefFactor: reliefFactor,
+  );
+}
+
+// ---------------------------------------------------------------------------
 // RasterSymbolizer
 // ---------------------------------------------------------------------------
 
@@ -180,6 +271,12 @@ RasterSymbolizer parseRasterSymbolizer(
     }
   }
 
+  // ChannelSelection
+  final csEl = findChild(element, 'ChannelSelection');
+  final channelSelection = csEl != null
+      ? parseChannelSelection(csEl, issues, '$path/ChannelSelection')
+      : null;
+
   // ColorMap
   final colorMapEl = findChild(element, 'ColorMap');
   final colorMap = colorMapEl != null
@@ -190,6 +287,12 @@ RasterSymbolizer parseRasterSymbolizer(
   final ceEl = findChild(element, 'ContrastEnhancement');
   final contrastEnhancement = ceEl != null
       ? parseContrastEnhancement(ceEl, issues, '$path/ContrastEnhancement')
+      : null;
+
+  // ShadedRelief
+  final srEl = findChild(element, 'ShadedRelief');
+  final shadedRelief = srEl != null
+      ? parseShadedRelief(srEl, issues, '$path/ShadedRelief')
       : null;
 
   // Collect non-parsed children as ExtensionNodes.
@@ -222,8 +325,10 @@ RasterSymbolizer parseRasterSymbolizer(
 
   return RasterSymbolizer(
     opacity: opacity,
+    channelSelection: channelSelection,
     colorMap: colorMap,
     contrastEnhancement: contrastEnhancement,
+    shadedRelief: shadedRelief,
     extensions: extensions,
   );
 }

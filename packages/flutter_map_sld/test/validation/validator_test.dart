@@ -337,6 +337,119 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // ShadedRelief validation
+  // -----------------------------------------------------------------------
+  group('ShadedRelief validation', () {
+    test('negative reliefFactor is an error', () {
+      final doc = _docWith(RasterSymbolizer(
+        shadedRelief: const ShadedRelief(reliefFactor: -1.0),
+      ));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'relief-factor-negative');
+    });
+
+    test('zero reliefFactor is valid', () {
+      final doc = _docWith(RasterSymbolizer(
+        shadedRelief: const ShadedRelief(reliefFactor: 0.0),
+      ));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'relief-factor-negative'),
+        isEmpty,
+      );
+    });
+
+    test('positive reliefFactor is valid', () {
+      final doc = _docWith(RasterSymbolizer(
+        shadedRelief: const ShadedRelief(reliefFactor: 55.0),
+      ));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'relief-factor-negative'),
+        isEmpty,
+      );
+    });
+
+    test('null reliefFactor is valid', () {
+      final doc = _docWith(RasterSymbolizer(
+        shadedRelief: const ShadedRelief(),
+      ));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'relief-factor-negative'),
+        isEmpty,
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // ChannelSelection validation
+  // -----------------------------------------------------------------------
+  group('ChannelSelection validation', () {
+    test('complete RGB is valid', () {
+      final doc = _docWith(RasterSymbolizer(
+        channelSelection: const ChannelSelection(
+          redChannel: SelectedChannel(channelName: '1'),
+          greenChannel: SelectedChannel(channelName: '2'),
+          blueChannel: SelectedChannel(channelName: '3'),
+        ),
+      ));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'incomplete-rgb-channels'),
+        isEmpty,
+      );
+    });
+
+    test('incomplete RGB is an error', () {
+      final doc = _docWith(RasterSymbolizer(
+        channelSelection: const ChannelSelection(
+          redChannel: SelectedChannel(channelName: '1'),
+        ),
+      ));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      final issue = result.issues
+          .firstWhere((i) => i.code == 'incomplete-rgb-channels');
+      expect(issue.message, contains('green'));
+      expect(issue.message, contains('blue'));
+    });
+
+    test('gray channel only is valid', () {
+      final doc = _docWith(RasterSymbolizer(
+        channelSelection: const ChannelSelection(
+          grayChannel: SelectedChannel(channelName: '1'),
+        ),
+      ));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'incomplete-rgb-channels'),
+        isEmpty,
+      );
+    });
+
+    test('no channels is valid', () {
+      final doc = _docWith(RasterSymbolizer(
+        channelSelection: const ChannelSelection(),
+      ));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'incomplete-rgb-channels'),
+        isEmpty,
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Location paths
   // -----------------------------------------------------------------------
   group('location paths', () {

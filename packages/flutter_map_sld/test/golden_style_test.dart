@@ -291,7 +291,78 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
-  // 11. Vendor Extensions
+  // 11. Multi-Band RGB with ChannelSelection
+  // -----------------------------------------------------------------------
+  group('Multi-Band RGB', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('multiband_rgb.sld'));
+
+    test('parses without errors', () {
+      expect(doc.version, '1.0.0');
+      expect(doc.layers.first.name, 'satellite');
+    });
+
+    test('has RGB channel selection', () {
+      final rs = doc.selectRasterSymbolizers().first;
+      final cs = rs.channelSelection!;
+
+      expect(cs.redChannel!.channelName, '1');
+      expect(cs.greenChannel!.channelName, '2');
+      expect(cs.blueChannel!.channelName, '3');
+      expect(cs.grayChannel, isNull);
+    });
+
+    test('red channel has per-channel contrast enhancement', () {
+      final rs = doc.selectRasterSymbolizers().first;
+      final red = rs.channelSelection!.redChannel!;
+
+      expect(red.contrastEnhancement!.method, ContrastMethod.normalize);
+      expect(red.contrastEnhancement!.gammaValue, 1.2);
+    });
+
+    test('has overall histogram contrast enhancement', () {
+      final rs = doc.selectRasterSymbolizers().first;
+      expect(rs.contrastEnhancement!.method, ContrastMethod.histogram);
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 12. Shaded Relief
+  // -----------------------------------------------------------------------
+  group('Shaded Relief', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('shaded_relief.sld'));
+
+    test('parses without errors', () {
+      expect(doc.version, '1.0.0');
+      expect(doc.layers.first.name, 'terrain');
+    });
+
+    test('has shaded relief parameters', () {
+      final rs = doc.selectRasterSymbolizers().first;
+      expect(rs.shadedRelief, isNotNull);
+      expect(rs.shadedRelief!.brightnessOnly, isFalse);
+      expect(rs.shadedRelief!.reliefFactor, 55.0);
+    });
+
+    test('has color map alongside shaded relief', () {
+      final rs = doc.selectRasterSymbolizers().first;
+      expect(rs.colorMap!.entries, hasLength(3));
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 13. Vendor Extensions
   // -----------------------------------------------------------------------
   group('Vendor Extensions', () {
     late SldParseResult result;

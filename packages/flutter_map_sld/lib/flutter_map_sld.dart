@@ -6,6 +6,7 @@
 library flutter_map_sld;
 
 export 'src/interop/legend/legend_model.dart';
+export 'src/model/channel_selection.dart';
 export 'src/model/color_map.dart';
 export 'src/model/contrast_enhancement.dart';
 export 'src/model/extension_node.dart';
@@ -13,6 +14,7 @@ export 'src/model/issue.dart';
 export 'src/model/layer.dart';
 export 'src/model/raster_symbolizer.dart';
 export 'src/model/rule.dart';
+export 'src/model/shaded_relief.dart';
 export 'src/model/sld_document.dart';
 export 'src/model/style.dart';
 export 'src/validation/validation_result.dart';

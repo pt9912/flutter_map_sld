@@ -202,6 +202,149 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // ChannelSelection
+  // -----------------------------------------------------------------------
+  group('parseChannelSelection', () {
+    test('parses RGB channels', () {
+      final el = _el(
+        '<ChannelSelection>'
+        '<RedChannel><SourceChannelName>1</SourceChannelName></RedChannel>'
+        '<GreenChannel><SourceChannelName>2</SourceChannelName></GreenChannel>'
+        '<BlueChannel><SourceChannelName>3</SourceChannelName></BlueChannel>'
+        '</ChannelSelection>',
+      );
+      final issues = <SldParseIssue>[];
+      final cs = parseChannelSelection(el, issues, '/test');
+
+      expect(cs.redChannel!.channelName, '1');
+      expect(cs.greenChannel!.channelName, '2');
+      expect(cs.blueChannel!.channelName, '3');
+      expect(cs.grayChannel, isNull);
+      expect(issues, isEmpty);
+    });
+
+    test('parses gray channel', () {
+      final el = _el(
+        '<ChannelSelection>'
+        '<GrayChannel><SourceChannelName>1</SourceChannelName></GrayChannel>'
+        '</ChannelSelection>',
+      );
+      final issues = <SldParseIssue>[];
+      final cs = parseChannelSelection(el, issues, '/test');
+
+      expect(cs.grayChannel!.channelName, '1');
+      expect(cs.redChannel, isNull);
+    });
+
+    test('parses per-channel contrast enhancement', () {
+      final el = _el(
+        '<ChannelSelection>'
+        '<RedChannel>'
+        '<SourceChannelName>1</SourceChannelName>'
+        '<ContrastEnhancement>'
+        '<Normalize/>'
+        '<GammaValue>1.5</GammaValue>'
+        '</ContrastEnhancement>'
+        '</RedChannel>'
+        '<GreenChannel><SourceChannelName>2</SourceChannelName></GreenChannel>'
+        '<BlueChannel><SourceChannelName>3</SourceChannelName></BlueChannel>'
+        '</ChannelSelection>',
+      );
+      final issues = <SldParseIssue>[];
+      final cs = parseChannelSelection(el, issues, '/test');
+
+      expect(cs.redChannel!.contrastEnhancement!.method,
+          ContrastMethod.normalize);
+      expect(cs.redChannel!.contrastEnhancement!.gammaValue, 1.5);
+      expect(cs.greenChannel!.contrastEnhancement, isNull);
+      expect(issues, isEmpty);
+    });
+
+    test('warns on missing SourceChannelName', () {
+      final el = _el(
+        '<ChannelSelection>'
+        '<RedChannel></RedChannel>'
+        '</ChannelSelection>',
+      );
+      final issues = <SldParseIssue>[];
+      final cs = parseChannelSelection(el, issues, '/test');
+
+      expect(cs.redChannel, isNull);
+      expect(issues, hasLength(1));
+      expect(issues.first.code, 'missing-channel-name');
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // ShadedRelief
+  // -----------------------------------------------------------------------
+  group('parseShadedRelief', () {
+    test('parses with all fields', () {
+      final el = _el(
+        '<ShadedRelief>'
+        '<BrightnessOnly>true</BrightnessOnly>'
+        '<ReliefFactor>55</ReliefFactor>'
+        '</ShadedRelief>',
+      );
+      final issues = <SldParseIssue>[];
+      final sr = parseShadedRelief(el, issues, '/test');
+
+      expect(sr.brightnessOnly, isTrue);
+      expect(sr.reliefFactor, 55.0);
+      expect(issues, isEmpty);
+    });
+
+    test('defaults brightnessOnly to false', () {
+      final el = _el(
+        '<ShadedRelief>'
+        '<ReliefFactor>30</ReliefFactor>'
+        '</ShadedRelief>',
+      );
+      final issues = <SldParseIssue>[];
+      final sr = parseShadedRelief(el, issues, '/test');
+
+      expect(sr.brightnessOnly, isFalse);
+      expect(sr.reliefFactor, 30.0);
+    });
+
+    test('handles empty element', () {
+      final el = _el('<ShadedRelief/>');
+      final issues = <SldParseIssue>[];
+      final sr = parseShadedRelief(el, issues, '/test');
+
+      expect(sr.brightnessOnly, isFalse);
+      expect(sr.reliefFactor, isNull);
+      expect(issues, isEmpty);
+    });
+
+    test('warns on invalid ReliefFactor', () {
+      final el = _el(
+        '<ShadedRelief>'
+        '<ReliefFactor>abc</ReliefFactor>'
+        '</ShadedRelief>',
+      );
+      final issues = <SldParseIssue>[];
+      final sr = parseShadedRelief(el, issues, '/test');
+
+      expect(sr.reliefFactor, isNull);
+      expect(issues, hasLength(1));
+      expect(issues.first.code, 'invalid-relief-factor');
+    });
+
+    test('parses BrightnessOnly value "1" as true', () {
+      final el = _el(
+        '<ShadedRelief>'
+        '<BrightnessOnly>1</BrightnessOnly>'
+        '</ShadedRelief>',
+      );
+      final issues = <SldParseIssue>[];
+      final sr = parseShadedRelief(el, issues, '/test');
+
+      expect(sr.brightnessOnly, isTrue);
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // RasterSymbolizer
   // -----------------------------------------------------------------------
   group('parseRasterSymbolizer', () {
@@ -239,6 +382,28 @@ void main() {
       expect(rs.opacity, isNull);
       expect(rs.colorMap, isNull);
       expect(rs.contrastEnhancement, isNull);
+      expect(rs.channelSelection, isNull);
+      expect(rs.shadedRelief, isNull);
+      expect(issues, isEmpty);
+    });
+
+    test('parses ChannelSelection and ShadedRelief', () {
+      final el = _el(
+        '<RasterSymbolizer>'
+        '<ChannelSelection>'
+        '<GrayChannel><SourceChannelName>1</SourceChannelName></GrayChannel>'
+        '</ChannelSelection>'
+        '<ShadedRelief>'
+        '<ReliefFactor>55</ReliefFactor>'
+        '</ShadedRelief>'
+        '</RasterSymbolizer>',
+      );
+      final issues = <SldParseIssue>[];
+      final rs = parseRasterSymbolizer(el, issues, '/test');
+
+      expect(rs.channelSelection!.grayChannel!.channelName, '1');
+      expect(rs.shadedRelief!.reliefFactor, 55.0);
+      expect(rs.extensions, isEmpty);
       expect(issues, isEmpty);
     });
 

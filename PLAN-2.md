@@ -31,13 +31,13 @@ Vervollständigt den Raster-Support über das GeoServer Cookbook hinaus.
 
 **Vorarbeit (bereits auf `main` umgesetzt):** Bekannte-aber-nicht-implementierte OGC-Elemente (`ChannelSelection`, `ShadedRelief`, `ImageOutline`, `Geometry`, `OverlapBehavior`) wurden bisher stillschweigend verworfen. Das widersprach dem Erhaltungsprinzip aus `architecture.md`. Dieser Parser-Fix ist bereits im Branch vorhanden: Der Parser unterscheidet jetzt `_parsedRasterChildren` von `_knownButUnimplementedRasterChildren` und konserviert letztere als `ExtensionNode` mit Issue-Code `unsupported-element`. Der Fix wird mit dem nächsten Core-Release veröffentlicht, nicht als separates Zwischenrelease.
 
-- [ ] `ChannelSelection` Domain-Modell (`redChannel`, `greenChannel`, `blueChannel`, `grayChannel`)
-- [ ] `SelectedChannel` (`channelName`, `contrastEnhancement`)
-- [ ] `ShadedRelief` Domain-Modell (`brightnessOnly`, `reliefFactor`)
-- [ ] Parser für `ChannelSelection` und `ShadedRelief` — Elemente von `_knownButUnimplemented` nach `_parsed` verschieben
-- [ ] Felder in `RasterSymbolizer` ergänzen (optional, rückwärtskompatibel)
-- [ ] Validierungsregeln: reliefFactor-Range, Channel-Vollständigkeit bei RGB
-- [ ] Unit-Tests und Golden-Tests mit Mehrband-SLD
+- [x] `ChannelSelection` Domain-Modell (`redChannel`, `greenChannel`, `blueChannel`, `grayChannel`)
+- [x] `SelectedChannel` (`channelName`, `contrastEnhancement`)
+- [x] `ShadedRelief` Domain-Modell (`brightnessOnly`, `reliefFactor`)
+- [x] Parser für `ChannelSelection` und `ShadedRelief` — Elemente von `_knownButUnimplemented` nach `_parsed` verschieben
+- [x] Felder in `RasterSymbolizer` ergänzen (optional, rückwärtskompatibel)
+- [x] Validierungsregeln: reliefFactor-Range, Channel-Vollständigkeit bei RGB
+- [x] Unit-Tests und Golden-Tests mit Mehrband-SLD
 
 ## Phase C: `flutter_map_sld_io` Adapter-Package
 
