@@ -76,6 +76,13 @@ Erster Scope: `PropertyName` und `Literal` als Expressions, Vergleichsoperatoren
 - [ ] `ExpressionParser` — `<PropertyName>`, `<Literal>`
 - [ ] `Expression.evaluate(Map<String, dynamic> properties)` → `dynamic`
 
+**Semantik-Entscheidung für den ersten Scope**:
+- `PropertyName.evaluate(...)` liefert den Property-Wert oder `null`, wenn das Attribut fehlt
+- `Literal.evaluate(...)` liefert den Literal-Wert unverändert
+- keine implizite Typkonvertierung zwischen String und Zahl im ersten Schritt
+- Vergleiche arbeiten nur auf kompatiblen Typen; inkompatible Typen ergeben `false`, nicht Exception
+- `null` propagiert nicht als Fehler, sondern führt in Vergleichsoperatoren zu `false`, außer bei `PropertyIsNull`
+
 ### B2: TextSymbolizer
 
 Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzelner `PropertyName` oder `Literal` als Label. Zusammengesetzte Labels (Mixed Content, Verkettungen) sind ein späterer Ausbauschritt.
@@ -99,6 +106,13 @@ Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzeln
 - [ ] `PropertyIsNull`
 - [ ] Logische Operatoren: `And`, `Or`, `Not`
 - [ ] `Rule.filter` als optionales Feld (additiv zu Scale-Filtern)
+
+**Semantik-Entscheidung für den ersten Scope**:
+- Vergleichsoperatoren evaluieren ihre Operanden über `Expression.evaluate(...)`
+- bei inkompatiblen Typen oder `null` ergibt der Vergleich `false`
+- `PropertyIsNull` ist `true`, wenn die ausgewertete Expression `null` liefert
+- `PropertyIsLike` wird im ersten Schritt als String-Match auf Basis der OGC-Parameter `wildCard`, `singleChar`, `escapeChar` implementiert
+- logische Operatoren arbeiten strikt boolesch; nicht-boolesche Zwischenergebnisse werden nicht automatisch truthy/falsy interpretiert
 
 ### B4: Filter-Parser
 
@@ -189,10 +203,16 @@ Helfer für WMS-nahe Workflows. Lebt im IO-Package oder als eigenes Package — 
 
 ### D1: WMS-Request-Helfer
 
-- [ ] `WmsRequestBuilder` — baut GetMap-URLs aus Layer-Name, Bounding-Box, Größe, SRS
+- [ ] `WmsRequestBuilder` — baut GetMap-URLs aus Layer-Name, Bounding-Box, Größe, CRS/SRS
 - [ ] GetMap-URL mit eingebettetem SLD_BODY-Parameter
 - [ ] `WmsCapabilitiesParser` — liest GetCapabilities-Response und extrahiert verfügbare Layer und zugehörige Style-Namen
 - [ ] `WmsStyleResolver` — verknüpft SLD-Styles mit WMS-Layern
+
+**Wichtige API-Entscheidung**:
+- `WmsRequestBuilder` braucht eine explizite WMS-Version (`1.1.1` oder `1.3.0`) im API-Vertrag
+- je nach Version wird `SRS` oder `CRS` verwendet
+- die Behandlung der Axis-Order muss versions- und CRS-abhängig explizit definiert werden; insbesondere bei WMS 1.3.0 darf das nicht dem Aufrufer implizit überlassen bleiben
+- die erste Implementierung sollte deshalb einen kleinen, klaren Vertrag haben, z.B. `version`, `crs`, `bbox`, `width`, `height`, `layers`, `styles`, und die Axis-Order intern konsistent anwenden
 
 **Hinweis**: Die Übersetzung von WMS-URLs in `flutter_map`-`TileLayer`-Konfiguration gehört in Phase C (Flutter-Adapter), nicht hierher. Phase D liefert nur die plattformneutralen URL-/Request-Bausteine.
 
