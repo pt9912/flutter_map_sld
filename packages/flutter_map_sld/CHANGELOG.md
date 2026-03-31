@@ -1,3 +1,13 @@
+## 0.4.0
+
+- **Vector symbolizers**: `PointSymbolizer`, `LineSymbolizer`, `PolygonSymbolizer` with `Stroke`, `Fill`, `Graphic`, `Mark`, `ExternalGraphic`.
+- **TextSymbolizer**: label via `Expression` (`PropertyName`, `Literal`), `Font`, `Halo`, `LabelPlacement` (point and line placement).
+- **OGC Filter Encoding**: sealed `Filter` model with 6 comparison operators, `PropertyIsBetween`, `PropertyIsLike`, `PropertyIsNull`, and logical operators (`And`, `Or`, `Not`).
+- **Expression evaluation**: `Expression.evaluate()` and `Filter.evaluate()` against feature property maps.
+- **Rule selection**: `Rule.appliesTo()` combining filter and scale, `SldDocument.selectMatchingRules()` returning `MatchedRule` with full layer/style/FTS context.
+- **Convenience methods**: `selectPointSymbolizers()`, `selectLineSymbolizers()`, `selectPolygonSymbolizers()`, `selectTextSymbolizers()`.
+- New validation rules: `stroke-width-negative`, `stroke-opacity-out-of-range`, `fill-opacity-out-of-range`, `graphic-size-negative`, `unknown-mark-name`, `font-size-negative`, `halo-radius-negative`.
+
 ## 0.2.0
 
 - **Scale-dependent rule selection**: `Rule.appliesAtScale()` with OGC-convention bounds (inclusive lower, exclusive upper) and `SldDocument.selectRasterSymbolizersAtScale()`.
