@@ -2,13 +2,13 @@
 
 Flutter- und `flutter_map`-Adapter für `flutter_map_sld`.
 
-Aktueller Scope:
+## Features
 
-- `SldAsset` ist noch offen
-- `SldLegend` ist noch offen
-- `FlutterMapStyleAdapter` ist implementiert und übersetzt das Core-Modell in `flutter_map`-nahe Style-DTOs
+- `FlutterMapStyleAdapter` — übersetzt geparste SLD-Symbolizer in `flutter_map`-nahe Style-DTOs (Point, Line, Polygon, Text)
+- `SldAsset.parseFromAsset` — lädt SLD/SE aus Flutter-Asset-Bundles
+- `SldLegend` Widget — rendert ColorMap-Legenden (vertikal/horizontal, konfigurierbare Swatch-Größe und Label-Stil)
 
-Der Adapter rendert bewusst keine Geometrien und erzeugt keine `Marker`, `Polyline` oder `Polygon` direkt. Er liefert stattdessen typisierte Style-Daten, damit der Aufrufer Geometrien, Filter-Pipeline und Renderingtiefe kontrollieren kann.
+Der Adapter rendert bewusst keine Geometrien und erzeugt keine `Marker`, `Polyline` oder `Polygon` direkt. Er liefert typisierte Style-Daten, damit der Aufrufer Geometrien, Filter-Pipeline und Renderingtiefe kontrollieren kann.
 
 ## Usage
 
