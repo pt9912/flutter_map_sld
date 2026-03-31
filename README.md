@@ -12,11 +12,11 @@ Im Geo-Umfeld ist SLD/SE der etablierte Standard zur Beschreibung von Kartenstil
 
 Das Projekt ist als kleine Package-Familie geplant. Im MVP wird zunächst nur der Pure-Dart-Core umgesetzt.
 
-| Package | Status | Beschreibung | Abhängigkeiten |
-|---------|--------|--------------|----------------|
-| `flutter_map_sld` | MVP | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml` |
-| `flutter_map_sld_io` | später | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen | Core + `dart:io` + HTTP-Client |
-| `flutter_map_sld_flutter_map` | später | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets | Core + Flutter + `flutter_map` |
+| Package                       | Status | Beschreibung                                                                  | Abhängigkeiten                 |
+| ----------------------------- | ------ | ----------------------------------------------------------------------------- | ------------------------------ |
+| `flutter_map_sld`             | MVP    | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml`                          |
+| `flutter_map_sld_io`          | später | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen                                | Core + `dart:io` + HTTP-Client |
+| `flutter_map_sld_flutter_map` | später | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
 
 Der Core enthält bewusst keine Abhängigkeit auf `dart:io`, Flutter oder `flutter_map` und läuft auf Dart VM, Flutter Mobile, Desktop und Web.
 
@@ -85,6 +85,12 @@ docker build --target analyze -t flutter_map_sld:analyze .
 
 # Tests
 docker build --target test -t flutter_map_sld:test .
+
+# Dokumentation generieren
+docker build --target doc -t gml4dart:doc .
+
+# Publish Dry-Run
+docker build --target publish-check -t gml4dart:publish-check .
 ```
 
 Mit lokalem Dart SDK (>=3.0.0):
