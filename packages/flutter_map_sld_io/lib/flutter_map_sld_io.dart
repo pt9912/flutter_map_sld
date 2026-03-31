@@ -9,3 +9,6 @@ library flutter_map_sld_io;
 
 export 'src/sld_io.dart';
 export 'src/sld_load_result.dart';
+export 'src/wms_capabilities.dart';
+export 'src/wms_request_builder.dart';
+export 'src/wms_style_resolver.dart';

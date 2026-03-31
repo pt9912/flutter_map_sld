@@ -42,6 +42,7 @@ COPY packages/flutter_map_sld/lib/ packages/flutter_map_sld/lib/
 
 # Copy IO package pubspec first for dependency caching
 COPY packages/flutter_map_sld_io/pubspec.yaml packages/flutter_map_sld_io/pubspec.yaml
+COPY packages/flutter_map_sld_io/pubspec_overrides.yaml packages/flutter_map_sld_io/pubspec_overrides.yaml
 WORKDIR /app/packages/flutter_map_sld_io
 RUN dart pub get
 

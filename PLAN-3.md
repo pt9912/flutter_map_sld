@@ -221,10 +221,10 @@ Helfer für WMS-nahe Workflows. Lebt im IO-Package (`flutter_map_sld_io`) — **
 
 ### D1: WMS-Request-Helfer
 
-- [ ] `WmsRequestBuilder` — baut GetMap-URLs aus Layer-Name, Bounding-Box, Größe, CRS/SRS
-- [ ] GetMap-URL mit eingebettetem SLD_BODY-Parameter
-- [ ] `WmsCapabilitiesParser` — liest GetCapabilities-Response und extrahiert verfügbare Layer und zugehörige Style-Namen
-- [ ] `WmsStyleResolver` — verknüpft SLD-Styles mit WMS-Layern
+- [x] `WmsRequestBuilder` — baut GetMap-URLs aus Layer-Name, Bounding-Box, Größe, CRS/SRS
+- [x] GetMap-URL mit eingebettetem SLD_BODY-Parameter
+- [x] `WmsCapabilitiesParser` — liest GetCapabilities-Response und extrahiert verfügbare Layer und zugehörige Style-Namen
+- [x] `WmsStyleResolver` — verknüpft SLD-Styles mit WMS-Layern
 
 **Wichtige API-Entscheidung**:
 - `WmsRequestBuilder` braucht eine explizite WMS-Version (`1.1.1` oder `1.3.0`) im API-Vertrag
