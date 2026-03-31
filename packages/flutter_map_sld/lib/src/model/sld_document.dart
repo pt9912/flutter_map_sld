@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../parser/sld_parser.dart' as parser;
 import '_equality.dart';
 import 'issue.dart';
@@ -24,6 +26,25 @@ class SldDocument {
   /// Returns an [SldParseResult] with the parsed document and any issues.
   static SldParseResult parseBytes(List<int> bytes) =>
       parser.parseSldBytes(bytes);
+
+  /// Parses SLD/SE from an asynchronous byte stream (UTF-8).
+  ///
+  /// This is a convenience wrapper that collects all chunks from [byteStream]
+  /// and then delegates to [parseBytes]. It does **not** perform incremental
+  /// XML parsing — use it for API ergonomics, not for reducing peak memory
+  /// on very large documents.
+  static Future<SldParseResult> parseAsyncStream(
+      Stream<List<int>> byteStream) async {
+    final chunks = await byteStream.toList();
+    final totalLength = chunks.fold<int>(0, (sum, c) => sum + c.length);
+    final bytes = Uint8List(totalLength);
+    var offset = 0;
+    for (final chunk in chunks) {
+      bytes.setRange(offset, offset + chunk.length, chunk);
+      offset += chunk.length;
+    }
+    return parseBytes(bytes);
+  }
 
   /// SLD version string (e.g. `"1.0.0"` or `"1.1.0"`).
   final String? version;

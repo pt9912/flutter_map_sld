@@ -10,13 +10,13 @@ Im Geo-Umfeld ist SLD/SE der etablierte Standard zur Beschreibung von Kartenstil
 
 ## Packages
 
-Das Projekt ist als kleine Package-Familie geplant. Im MVP wird zunächst nur der Pure-Dart-Core umgesetzt.
+Das Projekt ist als kleine Package-Familie aufgebaut.
 
-| Package                       | Status | Beschreibung                                                                  | Abhängigkeiten                 |
-| ----------------------------- | ------ | ----------------------------------------------------------------------------- | ------------------------------ |
-| `flutter_map_sld`             | MVP    | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml`                          |
-| `flutter_map_sld_io`          | später | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen                                | Core + `dart:io` + HTTP-Client |
-| `flutter_map_sld_flutter_map` | später | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
+| Package                       | Status      | Beschreibung                                                                  | Abhängigkeiten                 |
+| ----------------------------- | ----------- | ----------------------------------------------------------------------------- | ------------------------------ |
+| `flutter_map_sld`             | v0.1.0      | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml`                          |
+| `flutter_map_sld_io`          | v0.1.0      | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen                                | Core + `dart:io` + `http`      |
+| `flutter_map_sld_flutter_map` | geplant     | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
 
 Der Core enthält bewusst keine Abhängigkeit auf `dart:io`, Flutter oder `flutter_map` und läuft auf Dart VM, Flutter Mobile, Desktop und Web.
 
@@ -87,19 +87,26 @@ docker build --target analyze -t flutter_map_sld:analyze .
 docker build --target test -t flutter_map_sld:test .
 
 # Dokumentation generieren
-docker build --target doc -t gml4dart:doc .
+docker build --target doc -t flutter_map_sld:doc .
 
 # Publish Dry-Run
-docker build --target publish-check -t gml4dart:publish-check .
+docker build --target publish-check -t flutter_map_sld:publish-check .
+
+# IO-Package
+docker build -f packages/flutter_map_sld_io/Dockerfile --target analyze -t flutter_map_sld_io:analyze .
+docker build -f packages/flutter_map_sld_io/Dockerfile --target test -t flutter_map_sld_io:test .
 ```
 
 Mit lokalem Dart SDK (>=3.0.0):
 
 ```bash
+# Core
 cd packages/flutter_map_sld
-dart pub get
-dart analyze
-dart test
+dart pub get && dart analyze && dart test
+
+# IO-Package
+cd packages/flutter_map_sld_io
+dart pub get && dart analyze && dart test
 ```
 
 ## Dokumentation
@@ -109,4 +116,4 @@ dart test
 
 ## Status
 
-`flutter_map_sld` v0.1.0 ist auf pub.dev veröffentlicht. Die Adapter-Packages `flutter_map_sld_io` und `flutter_map_sld_flutter_map` sind noch geplant.
+`flutter_map_sld` v0.1.0 ist auf pub.dev veröffentlicht. `flutter_map_sld_io` v0.1.0 ist implementiert. Das Flutter-Adapter-Package `flutter_map_sld_flutter_map` ist noch geplant.

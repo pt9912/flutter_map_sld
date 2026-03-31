@@ -1,5 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter_map_sld/flutter_map_sld.dart';
 import 'package:test/test.dart';
+
+const _minimalSld = '<?xml version="1.0" encoding="UTF-8"?>'
+    '<StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld">'
+    '<NamedLayer><Name>test</Name><UserStyle><FeatureTypeStyle>'
+    '<Rule><RasterSymbolizer><ColorMap>'
+    '<ColorMapEntry color="#000000" quantity="0"/>'
+    '</ColorMap></RasterSymbolizer></Rule>'
+    '</FeatureTypeStyle></UserStyle></NamedLayer>'
+    '</StyledLayerDescriptor>';
 
 void main() {
   group('SldDocument', () {
@@ -149,6 +160,22 @@ void main() {
     test('selectRasterSymbolizersAtScale returns empty for no layers', () {
       final doc = SldDocument(layers: []);
       expect(doc.selectRasterSymbolizersAtScale(50000), isEmpty);
+    });
+
+    test('parseAsyncStream parses chunked byte stream', () async {
+      final bytes = utf8.encode(_minimalSld);
+      // Split into two chunks.
+      final mid = bytes.length ~/ 2;
+      final stream = Stream.fromIterable([
+        bytes.sublist(0, mid),
+        bytes.sublist(mid),
+      ]);
+
+      final result = await SldDocument.parseAsyncStream(stream);
+
+      expect(result.hasErrors, isFalse);
+      expect(result.document, isNotNull);
+      expect(result.document!.layers.first.name, 'test');
     });
 
     test('equal documents are ==', () {

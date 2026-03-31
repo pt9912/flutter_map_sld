@@ -98,31 +98,31 @@ class SldLoadError {
 Bei erfolgreichem Laden liefert das IO-Package `SldLoadSuccess(parseResult)`. Bei Transportfehlern liefert es `SldLoadFailure(error)`. Die API vermeidet damit ungültige Zwischenzustände und hält den Core-Issue-Vertrag sauber.
 
 ### C1: Package-Setup
-- [ ] `packages/flutter_map_sld_io/` anlegen
-- [ ] `pubspec.yaml` (Dependency auf `flutter_map_sld`, `http`)
-- [ ] `analysis_options.yaml` (gleiche strikte Regeln wie Core)
-- [ ] Library-Entrypoint `lib/flutter_map_sld_io.dart`
-- [ ] `SldLoadResult`, `SldLoadError`, `SldLoadErrorKind` Domain-Typen
-- [ ] Optionaler Core-Helfer prüfen: `SldDocument.parseAsyncStream(Stream<List<int>> byteStream)` als plattformneutrale Async-API ohne `dart:io`
-- [ ] Dabei explizit entscheiden: Komfort-Wrapper um den bestehenden DOM-Parser oder eigener eventbasierter Parserpfad mit direkter Domain-Modell-Erzeugung
+- [x] `packages/flutter_map_sld_io/` anlegen
+- [x] `pubspec.yaml` (Dependency auf `flutter_map_sld`, `http`)
+- [x] `analysis_options.yaml` (gleiche strikte Regeln wie Core)
+- [x] Library-Entrypoint `lib/flutter_map_sld_io.dart`
+- [x] `SldLoadResult`, `SldLoadError`, `SldLoadErrorKind` Domain-Typen
+- [x] Optionaler Core-Helfer prüfen: `SldDocument.parseAsyncStream(Stream<List<int>> byteStream)` als plattformneutrale Async-API ohne `dart:io`
+- [x] Dabei explizit entscheiden: Komfort-Wrapper um den bestehenden DOM-Parser (entschieden: kein eventbasierter Parserpfad, da SLD-Dokumente typischerweise klein)
 
 ### C2: Datei-Adapter
-- [ ] `SldIo.parseFile(String path)` → `Future<SldLoadResult>`
-- [ ] Fehlerbehandlung: Datei nicht gefunden, Lese-Fehler → `SldLoadError`
-- [ ] Unit-Tests mit temporären Dateien
+- [x] `SldIo.parseFile(String path)` → `Future<SldLoadResult>`
+- [x] Fehlerbehandlung: Datei nicht gefunden, Lese-Fehler → `SldLoadError`
+- [x] Unit-Tests mit temporären Dateien
 
 ### C3: HTTP-Adapter
-- [ ] `SldIo.parseUrl(Uri uri, {http.Client? client})` → `Future<SldLoadResult>`
-- [ ] Fehlerbehandlung: Netzwerkfehler → `SldLoadError(kind: networkError)`, HTTP-Status != 200 → `SldLoadError(kind: httpError, httpStatusCode: ...)`
-- [ ] Unit-Tests mit gemocktem HTTP-Client
+- [x] `SldIo.parseUrl(Uri uri, {http.Client? client})` → `Future<SldLoadResult>`
+- [x] Fehlerbehandlung: Netzwerkfehler → `SldLoadError(kind: networkError)`, HTTP-Status != 200 → `SldLoadError(kind: httpError, httpStatusCode: ...)`
+- [x] Unit-Tests mit gemocktem HTTP-Client
 
 ### C4: CI und Publish-Vorbereitung
-- [ ] README.md, CHANGELOG.md, LICENSE im Package
-- [ ] `dart pub publish --dry-run` erfolgreich
-- [ ] Dockerfile: eigener Multi-Stage-Build oder erweiterte Targets für IO-Package (analyze, test)
-- [ ] `.github/workflows/ci.yml` erweitern: analyze/test-Jobs für `flutter_map_sld_io`
-- [ ] Neuer Publish-Workflow für `flutter_map_sld_io` mit eigenem Tag-Pattern `flutter_map_sld_io-vX.Y.Z`
-- [ ] `pub.dev`-Automated-Publishing für `flutter_map_sld_io` auf dasselbe Repo konfigurieren, aber mit eigenem Tag-Pattern `flutter_map_sld_io-v{{version}}`
+- [x] README.md, CHANGELOG.md, LICENSE im Package
+- [x] `dart pub publish --dry-run` erfolgreich
+- [x] Dockerfile: eigener Multi-Stage-Build oder erweiterte Targets für IO-Package (analyze, test)
+- [x] `.github/workflows/ci.yml` erweitern: analyze/test-Jobs für `flutter_map_sld_io`
+- [x] Neuer Publish-Workflow für `flutter_map_sld_io` mit eigenem Tag-Pattern `flutter_map_sld_io-vX.Y.Z`
+- [x] `pub.dev`-Automated-Publishing für `flutter_map_sld_io` auf dasselbe Repo konfigurieren, aber mit eigenem Tag-Pattern `flutter_map_sld_io-v{{version}}`
 
 ## Phase D: Vendor Options
 
