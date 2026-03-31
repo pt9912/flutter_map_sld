@@ -3,6 +3,7 @@ import '../model/sld_document.dart';
 import 'rules/color_map_rules.dart';
 import 'rules/raster_rules.dart';
 import 'rules/scale_rules.dart';
+import 'rules/vector_rules.dart';
 import 'validation_result.dart';
 
 /// Validates a parsed [SldDocument] against domain-level rules.
@@ -45,6 +46,24 @@ class SldValidator {
               if (rs.colorMap != null) {
                 validateColorMap(rs.colorMap!, issues, '$rsPath.colorMap');
               }
+            }
+
+            final ps = rule.pointSymbolizer;
+            if (ps != null) {
+              validatePointSymbolizer(
+                  ps, issues, '$rulePath.pointSymbolizer');
+            }
+
+            final ls = rule.lineSymbolizer;
+            if (ls != null) {
+              validateLineSymbolizer(
+                  ls, issues, '$rulePath.lineSymbolizer');
+            }
+
+            final pols = rule.polygonSymbolizer;
+            if (pols != null) {
+              validatePolygonSymbolizer(
+                  pols, issues, '$rulePath.polygonSymbolizer');
             }
           }
         }

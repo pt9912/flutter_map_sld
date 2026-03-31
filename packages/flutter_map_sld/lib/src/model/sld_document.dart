@@ -4,6 +4,9 @@ import '../parser/sld_parser.dart' as parser;
 import '_equality.dart';
 import 'issue.dart';
 import 'layer.dart';
+import 'line_symbolizer.dart';
+import 'point_symbolizer.dart';
+import 'polygon_symbolizer.dart';
 import 'raster_symbolizer.dart';
 import 'rule.dart';
 
@@ -84,6 +87,35 @@ class SldDocument {
             final rs = rule.rasterSymbolizer;
             if (rs != null) {
               result.add(rs);
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /// Collects all [PointSymbolizer] instances from all rules.
+  List<PointSymbolizer> selectPointSymbolizers() =>
+      _collectSymbolizers((rule) => rule.pointSymbolizer);
+
+  /// Collects all [LineSymbolizer] instances from all rules.
+  List<LineSymbolizer> selectLineSymbolizers() =>
+      _collectSymbolizers((rule) => rule.lineSymbolizer);
+
+  /// Collects all [PolygonSymbolizer] instances from all rules.
+  List<PolygonSymbolizer> selectPolygonSymbolizers() =>
+      _collectSymbolizers((rule) => rule.polygonSymbolizer);
+
+  List<T> _collectSymbolizers<T>(T? Function(Rule) extract) {
+    final result = <T>[];
+    for (final layer in layers) {
+      for (final style in layer.styles) {
+        for (final fts in style.featureTypeStyles) {
+          for (final rule in fts.rules) {
+            final s = extract(rule);
+            if (s != null) {
+              result.add(s);
             }
           }
         }

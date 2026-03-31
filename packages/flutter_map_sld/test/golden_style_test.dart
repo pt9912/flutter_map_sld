@@ -403,4 +403,114 @@ void main() {
       expect(cm.entries, hasLength(2));
     });
   });
+
+  // -----------------------------------------------------------------------
+  // 14. Simple Point
+  // -----------------------------------------------------------------------
+  group('Simple Point', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('simple_point.sld'));
+
+    test('parses without errors', () {
+      expect(doc.layers.first.name, 'poi');
+    });
+
+    test('has point symbolizer with circle mark', () {
+      final ps = doc.selectPointSymbolizers();
+      expect(ps, hasLength(1));
+      expect(ps.first.graphic!.mark!.wellKnownName, 'circle');
+      expect(ps.first.graphic!.mark!.fill!.colorArgb, 0xFFFF0000);
+      expect(ps.first.graphic!.mark!.fill!.opacity, 0.8);
+      expect(ps.first.graphic!.mark!.stroke!.colorArgb, 0xFF000000);
+      expect(ps.first.graphic!.mark!.stroke!.width, 1.0);
+      expect(ps.first.graphic!.size, 10.0);
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 15. Simple Line
+  // -----------------------------------------------------------------------
+  group('Simple Line', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('simple_line.sld'));
+
+    test('parses without errors', () {
+      expect(doc.layers.first.name, 'roads');
+    });
+
+    test('has line symbolizer with dashed stroke', () {
+      final ls = doc.selectLineSymbolizers();
+      expect(ls, hasLength(1));
+      expect(ls.first.stroke!.colorArgb, 0xFF0000FF);
+      expect(ls.first.stroke!.width, 2.0);
+      expect(ls.first.stroke!.dashArray, [5.0, 3.0]);
+      expect(ls.first.stroke!.lineCap, 'round');
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 16. Simple Polygon
+  // -----------------------------------------------------------------------
+  group('Simple Polygon', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('simple_polygon.sld'));
+
+    test('parses without errors', () {
+      expect(doc.layers.first.name, 'buildings');
+    });
+
+    test('has polygon symbolizer with fill and stroke', () {
+      final ps = doc.selectPolygonSymbolizers();
+      expect(ps, hasLength(1));
+      expect(ps.first.fill!.colorArgb, 0xFFAAAAAA);
+      expect(ps.first.fill!.opacity, 0.5);
+      expect(ps.first.stroke!.colorArgb, 0xFF000000);
+      expect(ps.first.stroke!.width, 0.5);
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // 17. Mixed Symbolizers
+  // -----------------------------------------------------------------------
+  group('Mixed Symbolizers', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('mixed_symbolizers.sld'));
+
+    test('parses without errors', () {
+      expect(doc.layers.first.name, 'mixed');
+    });
+
+    test('has raster, point, and polygon symbolizers', () {
+      expect(doc.selectRasterSymbolizers(), hasLength(1));
+      expect(doc.selectPointSymbolizers(), hasLength(1));
+      expect(doc.selectPolygonSymbolizers(), hasLength(1));
+      expect(doc.selectLineSymbolizers(), isEmpty);
+    });
+
+    test('point symbolizer has star mark', () {
+      final ps = doc.selectPointSymbolizers().first;
+      expect(ps.graphic!.mark!.wellKnownName, 'star');
+      expect(ps.graphic!.mark!.fill!.colorArgb, 0xFFFFD700);
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
 }

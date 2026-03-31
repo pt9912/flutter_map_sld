@@ -450,6 +450,126 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // Vector symbolizer validation
+  // -----------------------------------------------------------------------
+  group('vector symbolizer validation', () {
+    SldDocument docWithPoint(PointSymbolizer ps) => SldDocument(
+          layers: [
+            SldLayer(
+              name: 'test',
+              styles: [
+                UserStyle(
+                  featureTypeStyles: [
+                    FeatureTypeStyle(rules: [Rule(pointSymbolizer: ps)]),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+    SldDocument docWithLine(LineSymbolizer ls) => SldDocument(
+          layers: [
+            SldLayer(
+              name: 'test',
+              styles: [
+                UserStyle(
+                  featureTypeStyles: [
+                    FeatureTypeStyle(rules: [Rule(lineSymbolizer: ls)]),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+    SldDocument docWithPolygon(PolygonSymbolizer ps) => SldDocument(
+          layers: [
+            SldLayer(
+              name: 'test',
+              styles: [
+                UserStyle(
+                  featureTypeStyles: [
+                    FeatureTypeStyle(rules: [Rule(polygonSymbolizer: ps)]),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+    test('negative stroke width is an error', () {
+      final doc = docWithLine(
+          const LineSymbolizer(stroke: Stroke(width: -1.0)));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'stroke-width-negative');
+    });
+
+    test('stroke opacity out of range is an error', () {
+      final doc = docWithLine(
+          const LineSymbolizer(stroke: Stroke(opacity: 1.5)));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'stroke-opacity-out-of-range');
+    });
+
+    test('fill opacity out of range is an error', () {
+      final doc = docWithPolygon(
+          const PolygonSymbolizer(fill: Fill(opacity: -0.1)));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'fill-opacity-out-of-range');
+    });
+
+    test('negative graphic size is an error', () {
+      final doc = docWithPoint(const PointSymbolizer(
+          graphic: Graphic(size: -5.0)));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'graphic-size-negative');
+    });
+
+    test('unknown mark name is info', () {
+      final doc = docWithPoint(const PointSymbolizer(
+          graphic: Graphic(
+              mark: Mark(wellKnownName: 'custom-shape'))));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isFalse);
+      expect(
+        result.issues.any((i) => i.code == 'unknown-mark-name'),
+        isTrue,
+      );
+    });
+
+    test('known mark name is valid', () {
+      final doc = docWithPoint(const PointSymbolizer(
+          graphic: Graphic(mark: Mark(wellKnownName: 'circle'))));
+      final result = validator.validate(doc);
+
+      expect(
+        result.issues.where((i) => i.code == 'unknown-mark-name'),
+        isEmpty,
+      );
+    });
+
+    test('valid polygon passes', () {
+      final doc = docWithPolygon(const PolygonSymbolizer(
+        fill: Fill(colorArgb: 0xFFAAAAAA, opacity: 0.5),
+        stroke: Stroke(colorArgb: 0xFF000000, width: 1.0),
+      ));
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isFalse);
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Location paths
   // -----------------------------------------------------------------------
   group('location paths', () {

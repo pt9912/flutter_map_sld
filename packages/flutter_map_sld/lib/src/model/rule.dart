@@ -1,15 +1,20 @@
+import 'line_symbolizer.dart';
+import 'point_symbolizer.dart';
+import 'polygon_symbolizer.dart';
 import 'raster_symbolizer.dart';
 
 /// A styling rule within a `FeatureTypeStyle`.
 ///
 /// Rules may be scale-dependent and contain one or more symbolizers.
-/// In v1, only [RasterSymbolizer] is supported.
 class Rule {
   const Rule({
     this.name,
     this.minScaleDenominator,
     this.maxScaleDenominator,
     this.rasterSymbolizer,
+    this.pointSymbolizer,
+    this.lineSymbolizer,
+    this.polygonSymbolizer,
   });
 
   /// Optional rule name.
@@ -23,6 +28,15 @@ class Rule {
 
   /// Raster symbolizer, if present.
   final RasterSymbolizer? rasterSymbolizer;
+
+  /// Point symbolizer, if present.
+  final PointSymbolizer? pointSymbolizer;
+
+  /// Line symbolizer, if present.
+  final LineSymbolizer? lineSymbolizer;
+
+  /// Polygon symbolizer, if present.
+  final PolygonSymbolizer? polygonSymbolizer;
 
   /// Whether this rule applies at the given [scaleDenominator].
   ///
@@ -44,7 +58,10 @@ class Rule {
           name == other.name &&
           minScaleDenominator == other.minScaleDenominator &&
           maxScaleDenominator == other.maxScaleDenominator &&
-          rasterSymbolizer == other.rasterSymbolizer;
+          rasterSymbolizer == other.rasterSymbolizer &&
+          pointSymbolizer == other.pointSymbolizer &&
+          lineSymbolizer == other.lineSymbolizer &&
+          polygonSymbolizer == other.polygonSymbolizer;
 
   @override
   int get hashCode => Object.hash(
@@ -52,5 +69,8 @@ class Rule {
         minScaleDenominator,
         maxScaleDenominator,
         rasterSymbolizer,
+        pointSymbolizer,
+        lineSymbolizer,
+        polygonSymbolizer,
       );
 }

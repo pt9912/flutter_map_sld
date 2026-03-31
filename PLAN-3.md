@@ -28,37 +28,37 @@ Erweitert den Core um die drei OGC-Geometrie-Symbolizer. TextSymbolizer folgt in
 
 ### A1: Domain-Modelle
 
-- [ ] `Stroke` (`color`, `width`, `opacity`, `dashArray`, `lineCap`, `lineJoin`)
-- [ ] `Fill` (`color`, `opacity`)
-- [ ] `Graphic` (`externalGraphic`, `mark`, `size`, `rotation`, `opacity`)
-- [ ] `Mark` (`wellKnownName`, `fill`, `stroke`) — OGC-Standardformen: `square`, `circle`, `triangle`, `star`, `cross`, `x`
-- [ ] `ExternalGraphic` (`onlineResource`, `format`)
-- [ ] `PointSymbolizer` (`graphic`)
-- [ ] `LineSymbolizer` (`stroke`)
-- [ ] `PolygonSymbolizer` (`fill`, `stroke`)
+- [x] `Stroke` (`color`, `width`, `opacity`, `dashArray`, `lineCap`, `lineJoin`)
+- [x] `Fill` (`color`, `opacity`)
+- [x] `Graphic` (`externalGraphic`, `mark`, `size`, `rotation`, `opacity`)
+- [x] `Mark` (`wellKnownName`, `fill`, `stroke`) — OGC-Standardformen: `square`, `circle`, `triangle`, `star`, `cross`, `x`
+- [x] `ExternalGraphic` (`onlineResource`, `format`)
+- [x] `PointSymbolizer` (`graphic`)
+- [x] `LineSymbolizer` (`stroke`)
+- [x] `PolygonSymbolizer` (`fill`, `stroke`)
 
 ### A2: Parser
 
-- [ ] `StrokeParser`, `FillParser`, `GraphicParser`
-- [ ] `PointSymbolizerParser`
-- [ ] `LineSymbolizerParser`
-- [ ] `PolygonSymbolizerParser`
-- [ ] `Rule` erweitern: `pointSymbolizer`, `lineSymbolizer`, `polygonSymbolizer` (alle optional, additiv zu `rasterSymbolizer`)
-- [ ] `SldDocument` Convenience-Methoden: `selectPointSymbolizers()`, `selectLineSymbolizers()`, `selectPolygonSymbolizers()`
+- [x] `StrokeParser`, `FillParser`, `GraphicParser`
+- [x] `PointSymbolizerParser`
+- [x] `LineSymbolizerParser`
+- [x] `PolygonSymbolizerParser`
+- [x] `Rule` erweitern: `pointSymbolizer`, `lineSymbolizer`, `polygonSymbolizer` (alle optional, additiv zu `rasterSymbolizer`)
+- [x] `SldDocument` Convenience-Methoden: `selectPointSymbolizers()`, `selectLineSymbolizers()`, `selectPolygonSymbolizers()`
 
 ### A3: Validierung
 
-- [ ] Stroke: `width` nicht negativ, `opacity` 0.0–1.0
-- [ ] Fill: `opacity` 0.0–1.0
-- [ ] Graphic: `size` nicht negativ, `rotation` beliebig
-- [ ] Mark: `wellKnownName` gegen bekannte Werte prüfen (info bei unbekanntem)
+- [x] Stroke: `width` nicht negativ, `opacity` 0.0–1.0
+- [x] Fill: `opacity` 0.0–1.0
+- [x] Graphic: `size` nicht negativ, `rotation` beliebig
+- [x] Mark: `wellKnownName` gegen bekannte Werte prüfen (info bei unbekanntem)
 
 ### A4: Tests und Fixtures
 
-- [ ] Unit-Tests pro Modell (Konstruktion, Equality)
-- [ ] Parser-Tests pro Symbolizer (XML-Fragmente)
-- [ ] Golden-Tests: SLD-Fixtures mit Point, Line, Polygon aus dem [GeoServer Vector Cookbook](https://docs.geoserver.org/stable/en/user/styling/sld/cookbook/)
-- [ ] Gemischte SLD: Rules mit Raster- und Vektor-Symbolizern
+- [x] Unit-Tests pro Modell (Konstruktion, Equality)
+- [x] Parser-Tests pro Symbolizer (XML-Fragmente)
+- [x] Golden-Tests: SLD-Fixtures mit Point, Line, Polygon
+- [x] Gemischte SLD: Rules mit Raster- und Vektor-Symbolizern
 
 ---
 
