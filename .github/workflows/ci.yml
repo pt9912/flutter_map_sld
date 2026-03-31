@@ -75,3 +75,27 @@ jobs:
 
       - name: Build IO test target
         run: docker build --target io-test -t flutter_map_sld_io:test .
+
+  analyze-flutter-map:
+    name: Analyze Flutter Adapter
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build Flutter adapter analyze target
+        run: docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target analyze -t flutter_map_sld_flutter_map:analyze .
+
+  test-flutter-map:
+    name: Test Flutter Adapter
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build Flutter adapter test target
+        run: docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target test -t flutter_map_sld_flutter_map:test .

@@ -168,14 +168,14 @@ Style-Adapter umgesetzt; Asset-Helfer, Legend-Widget und tiefere
 
 #### C2: Asset-Helfer
 
-- [ ] `SldAsset.parseFromAsset(String assetPath)` → `Future<SldParseResult>` (via `rootBundle`)
-- [ ] Flutter-Asset-Zugriff, getrennt vom IO-Package
+- [x] `SldAsset.parseFromAsset(String assetPath)` → `Future<SldParseResult>` (via `rootBundle`)
+- [x] Flutter-Asset-Zugriff, getrennt vom IO-Package
 
 #### C3: Legend-Widget
 
-- [ ] `SldLegend` Widget — rendert `extractLegend()`-Ergebnis als vertikale Farbskala/Legende
-- [ ] Konfigurierbar: Ausrichtung, Größe, Label-Stil
-- [ ] Raster-ColorMap-Unterstützung (Ramp, Intervals, ExactValues)
+- [x] `SldLegend` Widget — rendert `extractLegend()`-Ergebnis als vertikale Farbskala/Legende
+- [x] Konfigurierbar: Ausrichtung, Größe, Label-Stil
+- [x] Raster-ColorMap-Unterstützung (Ramp, Intervals, ExactValues)
 
 ### Teilweise spezifizierter Scope
 
@@ -209,9 +209,9 @@ und Scale-Selektion weiter im Core stattfindet.
 
 #### C5: CI und Publish
 
-- [ ] Dockerfile-Targets im Root-Dockerfile
-- [ ] CI-Workflow-Jobs
-- [ ] Publish-Workflow mit Tag-Pattern `flutter_map_sld_flutter_map-v*`
+- [x] Dockerfile (separates Flutter-basiertes Dockerfile im Package)
+- [x] CI-Workflow-Jobs
+- [x] Publish-Workflow mit Tag-Pattern `flutter_map_sld_flutter_map-v*`
 
 ---
 
