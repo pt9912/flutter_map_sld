@@ -1,3 +1,13 @@
+## 0.2.0
+
+- **Scale-dependent rule selection**: `Rule.appliesAtScale()` with OGC-convention bounds (inclusive lower, exclusive upper) and `SldDocument.selectRasterSymbolizersAtScale()`.
+- **ChannelSelection**: domain model and parser for RGB and gray band selection with per-channel `ContrastEnhancement`.
+- **ShadedRelief**: domain model and parser (`brightnessOnly`, `reliefFactor`).
+- **VendorOption**: typed parsing of `<VendorOption name="...">value</VendorOption>` into `RasterSymbolizer.vendorOptions`, separate from `ExtensionNode`.
+- **Async stream parsing**: `SldDocument.parseAsyncStream(Stream<List<int>>)` convenience wrapper.
+- **Parser fix**: known-but-unimplemented OGC elements (`ImageOutline`, `Geometry`, `OverlapBehavior`) are now preserved as `ExtensionNode` with issue code `unsupported-element` instead of being silently dropped.
+- New validation rules: `empty-scale-range` (error), `relief-factor-negative` (error), `incomplete-rgb-channels` (error), `vendor-option-missing-name` (warning).
+
 ## 0.1.0
 
 - Initial release: raster-first pure Dart core.
