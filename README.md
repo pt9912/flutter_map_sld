@@ -12,11 +12,11 @@ Im Geo-Umfeld ist SLD/SE der etablierte Standard zur Beschreibung von Kartenstil
 
 Das Projekt ist als kleine Package-Familie aufgebaut.
 
-| Package                       | Status      | Beschreibung                                                                  | Abhängigkeiten                 |
-| ----------------------------- | ----------- | ----------------------------------------------------------------------------- | ------------------------------ |
-| `flutter_map_sld`             | v0.1.0      | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml`                          |
-| `flutter_map_sld_io`          | v0.1.0      | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen                                | Core + `dart:io` + `http`      |
-| `flutter_map_sld_flutter_map` | unreleased  | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
+| Package                       | Status     | Beschreibung                                                                  | Abhängigkeiten                 |
+| ----------------------------- | ---------- | ----------------------------------------------------------------------------- | ------------------------------ |
+| `flutter_map_sld`             | v0.1.0     | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml`                          |
+| `flutter_map_sld_io`          | v0.1.0     | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen                                | Core + `dart:io` + `http`      |
+| `flutter_map_sld_flutter_map` | unreleased | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
 
 Der Core enthält bewusst keine Abhängigkeit auf `dart:io`, Flutter oder `flutter_map` und läuft auf Dart VM, Flutter Mobile, Desktop und Web.
 
@@ -114,6 +114,10 @@ docker run --rm -it --net=host flutter_map_sld:publish sh -c 'dart pub publish'
 # IO-Package
 docker build --target io-publish-check -t flutter_map_sld_io:publish .
 docker run --rm -it --net=host flutter_map_sld_io:publish sh -c 'dart pub publish'
+
+# Flutter-Adapter-Package
+docker build --target io-publish-check -t flutter_map_sld_flutter_map:publish .
+docker run --rm -it --net=host flutter_map_sld_flutter_map:publish sh -c 'dart pub publish'
 ```
 
 Automated-Publishing-Konfiguration:
