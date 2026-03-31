@@ -217,7 +217,7 @@ und Scale-Selektion weiter im Core stattfindet.
 
 ## Phase D: WMS-Interop
 
-Helfer für WMS-nahe Workflows. Lebt im IO-Package oder als eigenes Package — **ohne** `flutter_map`-Dependency.
+Helfer für WMS-nahe Workflows. Lebt im IO-Package (`flutter_map_sld_io`) — **ohne** `flutter_map`-Dependency. Das IO-Package hat bereits `http` als Dependency und passt thematisch (Netzwerk-/Server-Interaktion).
 
 ### D1: WMS-Request-Helfer
 
@@ -248,4 +248,4 @@ Helfer für WMS-nahe Workflows. Lebt im IO-Package oder als eigenes Package — 
 - **v0.3.0** `flutter_map_sld`: Phase A (Geometrie-Symbolizer: Point, Line, Polygon)
 - **v0.4.0** `flutter_map_sld`: Phase B (Filter, Expressions, TextSymbolizer)
 - **v0.1.0** `flutter_map_sld_flutter_map`: Package-Setup + erster C4-Style-Adapter-Scope; Asset-Helfer und Legend-Widget folgen
-- Phase D: Scope und Package-Zuordnung nach Bedarf entscheiden
+- **v0.2.0** `flutter_map_sld_io`: Phase D (WMS-Interop im IO-Package)
