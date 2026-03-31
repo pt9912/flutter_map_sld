@@ -150,6 +150,7 @@ flutter pub publish --dry-run
 
 - [Concept](docs/concept.md) — Produktvision, Scope und Zielgruppen
 - [Architecture](docs/architecture.md) — Schichtmodell, Domain Model und Teststrategie
+- [Roadmap](docs/roadmap.md) — offene Ausbaupunkte nach dem aktuellen Release-Stand
 
 ## Status
 
