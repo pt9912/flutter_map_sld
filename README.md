@@ -95,6 +95,7 @@ docker build --target publish-check -t flutter_map_sld:publish-check .
 # IO-Package
 docker build --target io-analyze -t flutter_map_sld_io:analyze .
 docker build --target io-test -t flutter_map_sld_io:test .
+docker build --target io-doc -t flutter_map_sld_io:doc .
 ```
 
 Mit lokalem Dart SDK (>=3.0.0):
