@@ -5,10 +5,12 @@ import '_equality.dart';
 import 'issue.dart';
 import 'layer.dart';
 import 'line_symbolizer.dart';
+import 'matched_rule.dart';
 import 'point_symbolizer.dart';
 import 'polygon_symbolizer.dart';
 import 'raster_symbolizer.dart';
 import 'rule.dart';
+import 'text_symbolizer.dart';
 
 /// A parsed SLD/SE document.
 class SldDocument {
@@ -106,6 +108,39 @@ class SldDocument {
   /// Collects all [PolygonSymbolizer] instances from all rules.
   List<PolygonSymbolizer> selectPolygonSymbolizers() =>
       _collectSymbolizers((rule) => rule.polygonSymbolizer);
+
+  /// Collects all [TextSymbolizer] instances from all rules.
+  List<TextSymbolizer> selectTextSymbolizers() =>
+      _collectSymbolizers((rule) => rule.textSymbolizer);
+
+  /// Returns all rules that match the given [properties] and optional
+  /// [scaleDenominator], wrapped in [MatchedRule] with full context.
+  ///
+  /// Rule order is preserved (drawing order semantics).
+  List<MatchedRule> selectMatchingRules(
+    Map<String, dynamic> properties, {
+    double? scaleDenominator,
+  }) {
+    final result = <MatchedRule>[];
+    for (final layer in layers) {
+      for (final style in layer.styles) {
+        for (final fts in style.featureTypeStyles) {
+          for (final rule in fts.rules) {
+            if (rule.appliesTo(properties,
+                scaleDenominator: scaleDenominator)) {
+              result.add(MatchedRule(
+                layer: layer,
+                style: style,
+                featureTypeStyle: fts,
+                rule: rule,
+              ));
+            }
+          }
+        }
+      }
+    }
+    return result;
+  }
 
   List<T> _collectSymbolizers<T>(T? Function(Rule) extract) {
     final result = <T>[];

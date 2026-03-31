@@ -513,4 +513,65 @@ void main() {
       expect(result.hasErrors, isFalse);
     });
   });
+
+  // -----------------------------------------------------------------------
+  // 18. Filtered Text Labels
+  // -----------------------------------------------------------------------
+  group('Filtered Text Labels', () {
+    late SldDocument doc;
+    setUp(() => doc = _parseFixture('filtered_text_labels.sld'));
+
+    test('parses without errors', () {
+      expect(doc.layers.first.name, 'places');
+    });
+
+    test('has two rules with filters', () {
+      final rules =
+          doc.layers.first.styles.first.featureTypeStyles.first.rules;
+      expect(rules, hasLength(2));
+      expect(rules[0].name, 'cities');
+      expect(rules[0].filter, isA<PropertyIsEqualTo>());
+      expect(rules[1].name, 'towns');
+      expect(rules[1].filter, isA<PropertyIsEqualTo>());
+    });
+
+    test('has text symbolizers with PropertyName labels', () {
+      final ts = doc.selectTextSymbolizers();
+      expect(ts, hasLength(2));
+      expect(ts[0].label, isA<PropertyName>());
+      expect((ts[0].label! as PropertyName).name, 'name');
+    });
+
+    test('cities text has font and halo', () {
+      final ts = doc.selectTextSymbolizers().first;
+      expect(ts.font!.family, 'Arial');
+      expect(ts.font!.size, 14.0);
+      expect(ts.font!.weight, 'bold');
+      expect(ts.fill!.colorArgb, 0xFF000000);
+      expect(ts.halo!.radius, 2.0);
+      expect(ts.halo!.fill!.colorArgb, 0xFFFFFFFF);
+    });
+
+    test('selectMatchingRules filters by properties', () {
+      final cityRules =
+          doc.selectMatchingRules({'type': 'city', 'name': 'Berlin'});
+      expect(cityRules, hasLength(1));
+      expect(cityRules.first.rule.name, 'cities');
+      expect(cityRules.first.layer.name, 'places');
+
+      final townRules =
+          doc.selectMatchingRules({'type': 'town', 'name': 'Freiburg'});
+      expect(townRules, hasLength(1));
+      expect(townRules.first.rule.name, 'towns');
+
+      final noMatch =
+          doc.selectMatchingRules({'type': 'village', 'name': 'X'});
+      expect(noMatch, isEmpty);
+    });
+
+    test('validates without errors', () {
+      final result = const SldValidator().validate(doc);
+      expect(result.hasErrors, isFalse);
+    });
+  });
 }

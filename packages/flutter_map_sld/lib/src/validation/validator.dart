@@ -65,6 +65,12 @@ class SldValidator {
               validatePolygonSymbolizer(
                   pols, issues, '$rulePath.polygonSymbolizer');
             }
+
+            final ts = rule.textSymbolizer;
+            if (ts != null) {
+              validateTextSymbolizer(
+                  ts, issues, '$rulePath.textSymbolizer');
+            }
           }
         }
       }

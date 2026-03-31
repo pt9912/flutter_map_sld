@@ -5,6 +5,7 @@ import '../../model/line_symbolizer.dart';
 import '../../model/point_symbolizer.dart';
 import '../../model/polygon_symbolizer.dart';
 import '../../model/stroke.dart';
+import '../../model/text_symbolizer.dart';
 
 /// Known OGC well-known mark names.
 const _knownMarkNames = {
@@ -110,5 +111,36 @@ void validatePolygonSymbolizer(
   }
   if (ps.stroke != null) {
     _validateStroke(ps.stroke!, issues, '$path.stroke');
+  }
+}
+
+/// Validates a [TextSymbolizer].
+void validateTextSymbolizer(
+  TextSymbolizer ts,
+  List<SldValidationIssue> issues,
+  String path,
+) {
+  final fontSize = ts.font?.size;
+  if (fontSize != null && fontSize < 0.0) {
+    issues.add(SldValidationIssue(
+      severity: SldIssueSeverity.error,
+      code: 'font-size-negative',
+      message: 'Font size must be non-negative, got $fontSize',
+      location: '$path.font.size',
+    ));
+  }
+
+  final haloRadius = ts.halo?.radius;
+  if (haloRadius != null && haloRadius < 0.0) {
+    issues.add(SldValidationIssue(
+      severity: SldIssueSeverity.error,
+      code: 'halo-radius-negative',
+      message: 'Halo radius must be non-negative, got $haloRadius',
+      location: '$path.halo.radius',
+    ));
+  }
+
+  if (ts.fill != null) {
+    _validateFill(ts.fill!, issues, '$path.fill');
   }
 }

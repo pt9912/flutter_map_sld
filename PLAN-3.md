@@ -70,11 +70,11 @@ Erster Scope: `PropertyName` und `Literal` als Expressions, Vergleichsoperatoren
 
 ### B1: Expression-Modell
 
-- [ ] `Expression` als sealed class
-- [ ] `PropertyName` (`name`) — Verweis auf ein Feature-Attribut
-- [ ] `Literal` (`value`) — konstanter Wert
-- [ ] `ExpressionParser` — `<PropertyName>`, `<Literal>`
-- [ ] `Expression.evaluate(Map<String, dynamic> properties)` → `dynamic`
+- [x] `Expression` als sealed class
+- [x] `PropertyName` (`name`) — Verweis auf ein Feature-Attribut
+- [x] `Literal` (`value`) — konstanter Wert
+- [x] `ExpressionParser` — `<PropertyName>`, `<Literal>`
+- [x] `Expression.evaluate(Map<String, dynamic> properties)` → `dynamic`
 
 **Semantik-Entscheidung für den ersten Scope**:
 - `PropertyName.evaluate(...)` liefert den Property-Wert oder `null`, wenn das Attribut fehlt
@@ -87,25 +87,25 @@ Erster Scope: `PropertyName` und `Literal` als Expressions, Vergleichsoperatoren
 
 Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzelner `PropertyName` oder `Literal` als Label. Zusammengesetzte Labels (Mixed Content, Verkettungen) sind ein späterer Ausbauschritt.
 
-- [ ] `TextSymbolizer` (`label: Expression`, `font`, `fill`, `halo`, `placement`)
-- [ ] `Font` (`family`, `style`, `weight`, `size`)
-- [ ] `Halo` (`radius`, `fill`)
-- [ ] `LabelPlacement` (`pointPlacement`, `linePlacement`)
-- [ ] `TextSymbolizerParser` (inkl. Font, Halo, LabelPlacement)
-- [ ] `Rule` erweitern: `textSymbolizer` (optional, additiv)
-- [ ] `SldDocument.selectTextSymbolizers()`
-- [ ] Validierung: Font-Size nicht negativ, Halo-Radius nicht negativ
-- [ ] Golden-Tests: SLD-Fixtures mit Text-Labels aus dem GeoServer Vector Cookbook
+- [x] `TextSymbolizer` (`label: Expression`, `font`, `fill`, `halo`, `placement`)
+- [x] `Font` (`family`, `style`, `weight`, `size`)
+- [x] `Halo` (`radius`, `fill`)
+- [x] `LabelPlacement` (`pointPlacement`, `linePlacement`)
+- [x] `TextSymbolizerParser` (inkl. Font, Halo, LabelPlacement)
+- [x] `Rule` erweitern: `textSymbolizer` (optional, additiv)
+- [x] `SldDocument.selectTextSymbolizers()`
+- [x] Validierung: Font-Size nicht negativ, Halo-Radius nicht negativ
+- [x] Golden-Tests: SLD-Fixture mit Text-Labels und Filter
 
 ### B3: Filter-Modell
 
-- [ ] `Filter` als sealed class (Basis für alle Filtertypen)
-- [ ] Vergleichsoperatoren: `PropertyIsEqualTo`, `PropertyIsNotEqualTo`, `PropertyIsLessThan`, `PropertyIsGreaterThan`, `PropertyIsLessThanOrEqualTo`, `PropertyIsGreaterThanOrEqualTo`
-- [ ] `PropertyIsBetween` (`lowerBoundary`, `upperBoundary`)
-- [ ] `PropertyIsLike` (`pattern`, `wildCard`, `singleChar`, `escapeChar`)
-- [ ] `PropertyIsNull`
-- [ ] Logische Operatoren: `And`, `Or`, `Not`
-- [ ] `Rule.filter` als optionales Feld (additiv zu Scale-Filtern)
+- [x] `Filter` als sealed class (Basis für alle Filtertypen)
+- [x] Vergleichsoperatoren: `PropertyIsEqualTo`, `PropertyIsNotEqualTo`, `PropertyIsLessThan`, `PropertyIsGreaterThan`, `PropertyIsLessThanOrEqualTo`, `PropertyIsGreaterThanOrEqualTo`
+- [x] `PropertyIsBetween` (`lowerBoundary`, `upperBoundary`)
+- [x] `PropertyIsLike` (`pattern`, `wildCard`, `singleChar`, `escapeChar`)
+- [x] `PropertyIsNull`
+- [x] Logische Operatoren: `And`, `Or`, `Not`
+- [x] `Rule.filter` als optionales Feld (additiv zu Scale-Filtern)
 
 **Semantik-Entscheidung für den ersten Scope**:
 - Vergleichsoperatoren evaluieren ihre Operanden über `Expression.evaluate(...)`
@@ -116,16 +116,16 @@ Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzeln
 
 ### B4: Filter-Parser
 
-- [ ] `FilterParser` — Einstieg über `<ogc:Filter>` / `<Filter>`
-- [ ] Vergleichsoperator-Parser
-- [ ] Logische Operator-Parser (rekursiv)
-- [ ] Integration in `RuleParser`
+- [x] `FilterParser` — Einstieg über `<ogc:Filter>` / `<Filter>`
+- [x] Vergleichsoperator-Parser
+- [x] Logische Operator-Parser (rekursiv)
+- [x] Integration in `RuleParser`
 
 ### B5: Evaluation und Selektion
 
-- [ ] `Filter.evaluate(Map<String, dynamic> properties)` → `bool`
-- [ ] `Rule.appliesTo(Map<String, dynamic> properties, {double? scaleDenominator})` → `bool` — kombiniert Filter und Scale-Check
-- [ ] `MatchedRule` Wrapper-Klasse mit Herkunftskontext:
+- [x] `Filter.evaluate(Map<String, dynamic> properties)` → `bool`
+- [x] `Rule.appliesTo(Map<String, dynamic> properties, {double? scaleDenominator})` → `bool` — kombiniert Filter und Scale-Check
+- [x] `MatchedRule` Wrapper-Klasse mit Herkunftskontext:
   ```dart
   class MatchedRule {
     final SldLayer layer;
@@ -134,7 +134,7 @@ Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzeln
     final Rule rule;
   }
   ```
-- [ ] `SldDocument.selectMatchingRules(Map<String, dynamic> properties, {double? scaleDenominator})` → `List<MatchedRule>`
+- [x] `SldDocument.selectMatchingRules(Map<String, dynamic> properties, {double? scaleDenominator})` → `List<MatchedRule>`
 
 **Design-Entscheidung**: Die Selektions-API gibt `MatchedRule`-Objekte zurück, nicht flache `Rule`- oder Symbolizer-Listen. Gründe:
 - `Rule` allein trägt keine Parent-Referenzen — bei Selektion über mehrere Layer/Styles geht die Herkunft sonst verloren
@@ -144,10 +144,10 @@ Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzeln
 
 ### B6: Tests
 
-- [ ] Unit-Tests pro Expression- und Filtertyp
-- [ ] Evaluation-Tests mit Properties-Maps
-- [ ] Parser-Tests mit SLD-Fragmenten
-- [ ] Golden-Tests: SLD mit filterbasierter Stilzuweisung
+- [x] Unit-Tests pro Expression- und Filtertyp
+- [x] Evaluation-Tests mit Properties-Maps
+- [x] Parser-Tests mit SLD-Fragmenten
+- [x] Golden-Tests: SLD mit filterbasierter Stilzuweisung
 
 ---
 

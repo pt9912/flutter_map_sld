@@ -567,6 +567,60 @@ void main() {
 
       expect(result.hasErrors, isFalse);
     });
+
+    test('negative font size is an error', () {
+      final doc = SldDocument(
+        layers: [
+          SldLayer(
+            name: 'test',
+            styles: [
+              UserStyle(
+                featureTypeStyles: [
+                  FeatureTypeStyle(rules: [
+                    const Rule(
+                      textSymbolizer: TextSymbolizer(
+                        font: Font(size: -1.0),
+                      ),
+                    ),
+                  ]),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'font-size-negative');
+    });
+
+    test('negative halo radius is an error', () {
+      final doc = SldDocument(
+        layers: [
+          SldLayer(
+            name: 'test',
+            styles: [
+              UserStyle(
+                featureTypeStyles: [
+                  FeatureTypeStyle(rules: [
+                    const Rule(
+                      textSymbolizer: TextSymbolizer(
+                        halo: Halo(radius: -2.0),
+                      ),
+                    ),
+                  ]),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      final result = validator.validate(doc);
+
+      expect(result.hasErrors, isTrue);
+      expect(result.issues.first.code, 'halo-radius-negative');
+    });
   });
 
   // -----------------------------------------------------------------------
