@@ -96,10 +96,13 @@ docker build --target publish-check -t flutter_map_sld:publish-check .
 docker build --target io-analyze -t flutter_map_sld_io:analyze .
 docker build --target io-test -t flutter_map_sld_io:test .
 docker build --target io-doc -t flutter_map_sld_io:doc .
+docker build --target io-publish-check -t flutter_map_sld_io:publish-check .
 
 # Flutter-Adapter-Package
-docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target analyze -t flutter_map_sld_flutter_map:analyze .
-docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target test -t flutter_map_sld_flutter_map:test .
+docker build --target flutter-map-analyze -t flutter_map_sld_flutter_map:analyze .
+docker build --target flutter-map-test -t flutter_map_sld_flutter_map:test .
+docker build --target flutter-map-doc -t flutter_map_sld_flutter_map:doc .
+docker build --target flutter-map-publish-check -t flutter_map_sld_flutter_map:publish-check .
 ```
 
 ### Manueller Publish via Docker
@@ -116,13 +119,14 @@ docker build --target io-publish-check -t flutter_map_sld_io:publish .
 docker run --rm -it --net=host flutter_map_sld_io:publish sh -c 'dart pub publish'
 
 # Flutter-Adapter-Package
-docker build --target io-publish-check -t flutter_map_sld_flutter_map:publish .
-docker run --rm -it --net=host flutter_map_sld_flutter_map:publish sh -c 'dart pub publish'
+docker build --target flutter-map-publish-check -t flutter_map_sld_flutter_map:publish .
+docker run --rm -it --net=host flutter_map_sld_flutter_map:publish sh -c 'flutter pub publish'
 ```
 
 Automated-Publishing-Konfiguration:
 - Core: https://pub.dev/packages/flutter_map_sld/admin
 - IO: https://pub.dev/packages/flutter_map_sld_io/admin
+- Flutter-Adapter: nach dem ersten Publish auf pub.dev ergänzen
 
 Mit lokalem Dart SDK (>=3.0.0):
 
@@ -134,10 +138,12 @@ dart pub get && dart analyze && dart test
 # IO-Package
 cd packages/flutter_map_sld_io
 dart pub get && dart analyze && dart test
+dart pub publish --dry-run
 
 # Flutter-Adapter-Package
 cd packages/flutter_map_sld_flutter_map
 flutter pub get && flutter analyze && flutter test
+flutter pub publish --dry-run
 ```
 
 ## Dokumentation

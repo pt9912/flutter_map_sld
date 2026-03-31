@@ -26,6 +26,10 @@ RUN flutter analyze
 FROM base AS test
 RUN flutter test
 
+# Doc
+FROM base AS doc
+RUN dart doc
+
 # Publish dry-run
 FROM base AS publish-check
 RUN flutter pub publish --dry-run

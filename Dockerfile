@@ -64,3 +64,39 @@ RUN dart doc
 # Publish dry-run
 FROM io-base AS io-publish-check
 RUN dart pub publish --dry-run
+
+## ---------------------------------------------------------------------------
+## Flutter Adapter: flutter_map_sld_flutter_map
+## ---------------------------------------------------------------------------
+FROM ghcr.io/cirruslabs/flutter:stable AS flutter-map-base
+
+WORKDIR /app
+
+# Copy core package (dependency)
+COPY packages/flutter_map_sld/pubspec.yaml packages/flutter_map_sld/pubspec.yaml
+COPY packages/flutter_map_sld/lib/ packages/flutter_map_sld/lib/
+
+# Copy Flutter adapter package pubspec first for dependency caching
+COPY packages/flutter_map_sld_flutter_map/pubspec.yaml packages/flutter_map_sld_flutter_map/pubspec.yaml
+COPY packages/flutter_map_sld_flutter_map/pubspec_overrides.yaml packages/flutter_map_sld_flutter_map/pubspec_overrides.yaml
+WORKDIR /app/packages/flutter_map_sld_flutter_map
+RUN flutter pub get
+
+# Copy the rest of the Flutter adapter package
+COPY packages/flutter_map_sld_flutter_map/ /app/packages/flutter_map_sld_flutter_map/
+
+# Analyze
+FROM flutter-map-base AS flutter-map-analyze
+RUN flutter analyze
+
+# Test
+FROM flutter-map-base AS flutter-map-test
+RUN flutter test
+
+# Doc
+FROM flutter-map-base AS flutter-map-doc
+RUN dart doc
+
+# Publish dry-run
+FROM flutter-map-base AS flutter-map-publish-check
+RUN flutter pub publish --dry-run

@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build Flutter adapter analyze target
-        run: docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target analyze -t flutter_map_sld_flutter_map:analyze .
+        run: docker build --target flutter-map-analyze -t flutter_map_sld_flutter_map:analyze .
 
   test-flutter-map:
     name: Test Flutter Adapter
@@ -98,4 +98,4 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build Flutter adapter test target
-        run: docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target test -t flutter_map_sld_flutter_map:test .
+        run: docker build --target flutter-map-test -t flutter_map_sld_flutter_map:test .
