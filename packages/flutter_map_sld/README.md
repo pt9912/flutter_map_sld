@@ -48,8 +48,8 @@ See [example/parse_and_validate.dart](example/parse_and_validate.dart) for a com
 | Package | Description |
 |---------|------------|
 | **flutter_map_sld** (this) | Pure Dart core |
-| `flutter_map_sld_io` (planned) | File and HTTP helpers |
-| `flutter_map_sld_flutter_map` (planned) | Flutter and flutter_map adapters |
+| `flutter_map_sld_io` | File and HTTP helpers |
+| `flutter_map_sld_flutter_map` | Flutter and flutter_map adapters |
 
 ## Documentation
 

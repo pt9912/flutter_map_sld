@@ -16,7 +16,7 @@ Das Projekt ist als kleine Package-Familie aufgebaut.
 | ----------------------------- | ----------- | ----------------------------------------------------------------------------- | ------------------------------ |
 | `flutter_map_sld`             | v0.1.0      | Pure-Dart-Core: Parsing, Domain Model, Validation, Legend-/Farbskalen-Interop | `xml`                          |
 | `flutter_map_sld_io`          | v0.1.0      | Datei- und HTTP-Helfer für Dart-/VM-Umgebungen                                | Core + `dart:io` + `http`      |
-| `flutter_map_sld_flutter_map` | geplant     | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
+| `flutter_map_sld_flutter_map` | unreleased  | Flutter-Asset-Helfer, `flutter_map`-Adapter und Widgets                       | Core + Flutter + `flutter_map` |
 
 Der Core enthält bewusst keine Abhängigkeit auf `dart:io`, Flutter oder `flutter_map` und läuft auf Dart VM, Flutter Mobile, Desktop und Web.
 
@@ -96,6 +96,10 @@ docker build --target publish-check -t flutter_map_sld:publish-check .
 docker build --target io-analyze -t flutter_map_sld_io:analyze .
 docker build --target io-test -t flutter_map_sld_io:test .
 docker build --target io-doc -t flutter_map_sld_io:doc .
+
+# Flutter-Adapter-Package
+docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target analyze -t flutter_map_sld_flutter_map:analyze .
+docker build -f packages/flutter_map_sld_flutter_map/Dockerfile --target test -t flutter_map_sld_flutter_map:test .
 ```
 
 ### Manueller Publish via Docker
@@ -126,6 +130,10 @@ dart pub get && dart analyze && dart test
 # IO-Package
 cd packages/flutter_map_sld_io
 dart pub get && dart analyze && dart test
+
+# Flutter-Adapter-Package
+cd packages/flutter_map_sld_flutter_map
+flutter pub get && flutter analyze && flutter test
 ```
 
 ## Dokumentation
@@ -135,4 +143,4 @@ dart pub get && dart analyze && dart test
 
 ## Status
 
-`flutter_map_sld` v0.2.0 und `flutter_map_sld_io` v0.1.0 sind auf pub.dev veröffentlicht. Das Flutter-Adapter-Package `flutter_map_sld_flutter_map` ist noch geplant.
+`flutter_map_sld` v0.2.0 und `flutter_map_sld_io` v0.1.0 sind auf pub.dev veröffentlicht. `flutter_map_sld_flutter_map` ist jetzt im Workspace angelegt, aber noch nicht auf pub.dev veröffentlicht.

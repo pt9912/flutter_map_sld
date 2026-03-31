@@ -153,16 +153,18 @@ Hängt von B1 ab, weil `<Label>` eine Expression enthält. Erster Scope: einzeln
 
 ## Phase C: `flutter_map_sld_flutter_map` Adapter-Package
 
-Flutter-spezifischer Adapter. Braucht einen konkreten Use-Case als Treiber — die folgenden Punkte sind nach Verbindlichkeit gestaffelt.
+Flutter-spezifischer Adapter. Der erste nutzbare Scope ist jetzt als
+Style-Adapter umgesetzt; Asset-Helfer, Legend-Widget und tiefere
+`flutter_map`-Integration bleiben separat ausbaubar.
 
 ### Fester Scope (unabhängig vom Use-Case)
 
 #### C1: Package-Setup
 
-- [ ] `packages/flutter_map_sld_flutter_map/` anlegen
-- [ ] `pubspec.yaml` (Dependency auf `flutter_map_sld`, `flutter_map`, Flutter SDK)
-- [ ] `analysis_options.yaml`
-- [ ] Library-Entrypoint
+- [x] `packages/flutter_map_sld_flutter_map/` anlegen
+- [x] `pubspec.yaml` (Dependency auf `flutter_map_sld`, `flutter_map`, Flutter SDK)
+- [x] `analysis_options.yaml`
+- [x] Library-Entrypoint
 
 #### C2: Asset-Helfer
 
@@ -175,19 +177,35 @@ Flutter-spezifischer Adapter. Braucht einen konkreten Use-Case als Treiber — d
 - [ ] Konfigurierbar: Ausrichtung, Größe, Label-Stil
 - [ ] Raster-ColorMap-Unterstützung (Ramp, Intervals, ExactValues)
 
-### Offener Scope (use-case-getrieben, noch nicht spezifizierbar)
+### Teilweise spezifizierter Scope
 
-#### C4: Style-Adapter (Skizze)
+#### C4: Style-Adapter (erster Scope umgesetzt)
 
-Vor einer Implementierung muss geklärt werden:
-- **Was ist der Input?** GeoJSON-Features, `flutter_map`-Polygone, oder rohe Geometrien?
-- **Wer evaluiert Filter?** Der Adapter, der Aufrufer, oder eine Pipeline?
-- **Wie tief geht die Übersetzung?** Nur Farbe/Stroke-Breite, oder auch Graphic/Mark-Rendering?
+Der erste Adapter-Scope vermeidet bewusst vollständiges Client-Rendering und
+übersetzt stattdessen das Core-Modell in stabile, `flutter_map`-nahe Style-DTOs.
+Damit bleibt die Geometrie- und Layer-Erzeugung beim Aufrufer, während Filter-
+und Scale-Selektion weiter im Core stattfindet.
 
-Mögliche Richtungen, aber **keine festen Planpunkte**:
-- `SldStyleAdapter` — übersetzt Vektor-Symbolizer in `flutter_map`-kompatible Darstellung
-- WMS-TileLayer-Integration — nutzt `WmsRequestBuilder` aus Phase D, um `TileLayer`-Konfigurationen mit SLD-Style-Parametern zu erzeugen
-- Dabei gelten die Architekturgrenze (architecture.md: Adapter konsumiert Core-Modell, kein all-or-nothing Rendering) und das flutter_map-Risiko (concept.md: flutter_map ist keine generische OGC-Rendering-Engine)
+- [x] `FlutterMapStyleAdapter`
+- [x] `adaptRule(Rule, {properties})` → `FlutterMapRuleStyle`
+- [x] `adaptMatchedRule(...)` / `adaptMatchedRules(...)`
+- [x] `adaptDocument(SldDocument, {properties, scaleDenominator})`
+- [x] `FlutterMapMatchedStyle` als Wrapper um `MatchedRule` + adaptierte Style-Daten
+- [x] DTOs für Point, Line, Polygon und Text (`FlutterMapPointStyle`, `FlutterMapLineStyle`, `FlutterMapPolygonStyle`, `FlutterMapTextStyle`)
+- [x] Mapping von Stroke/Fill in Flutter-Typen (`Color`, `StrokeCap`, `StrokeJoin`, `TextStyle`)
+- [x] Point-Mapping inkl. Mark-Shape, ExternalGraphic-Metadaten, Größe, Rotation, Opacity
+- [x] Text-Mapping inkl. Label-Evaluation, Font, Halo und Placement-Hints
+- [x] Tests für Rule-Adaptierung sowie Dokument-Selektion via Filter und Scale
+
+**Bewusste Scope-Grenze des ersten C4-Schritts**:
+- keine direkte Erzeugung von `Marker`, `Polygon`, `Polyline` oder `TileLayer`
+- keine Geometrie-/Feature-Pipeline im Adapter
+- keine WMS-Integration in Phase C4; dafür bleibt Phase D zuständig
+
+**Offene Ausbaurichtungen**:
+- direkte `flutter_map`-Layer-Helfer, sobald ein stabiler Geometrieinput feststeht
+- WMS-`TileLayer`-Hilfen auf Basis von Phase D
+- tiefere Übersetzung von Mark-/Graphic-Rendering, falls ein konkreter Use-Case das braucht
 
 #### C5: CI und Publish
 
@@ -229,5 +247,5 @@ Helfer für WMS-nahe Workflows. Lebt im IO-Package oder als eigenes Package — 
 
 - **v0.3.0** `flutter_map_sld`: Phase A (Geometrie-Symbolizer: Point, Line, Polygon)
 - **v0.4.0** `flutter_map_sld`: Phase B (Filter, Expressions, TextSymbolizer)
-- **v0.1.0** `flutter_map_sld_flutter_map`: Phase C (Legend-Widget + Asset-Helfer; Style-Adapter nach Use-Case)
+- **v0.1.0** `flutter_map_sld_flutter_map`: Package-Setup + erster C4-Style-Adapter-Scope; Asset-Helfer und Legend-Widget folgen
 - Phase D: Scope und Package-Zuordnung nach Bedarf entscheiden
