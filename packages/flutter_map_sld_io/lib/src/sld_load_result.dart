@@ -17,6 +17,7 @@ sealed class SldLoadResult {
 
 /// A successfully loaded SLD document.
 final class SldLoadSuccess extends SldLoadResult {
+  /// Creates a success result wrapping the given [parseResult].
   const SldLoadSuccess(this.parseResult);
 
   /// The parse result from the core parser. May still contain parse issues.
@@ -25,6 +26,7 @@ final class SldLoadSuccess extends SldLoadResult {
 
 /// A transport-level failure (file not found, network error, etc.).
 final class SldLoadFailure extends SldLoadResult {
+  /// Creates a failure result wrapping the given [error].
   const SldLoadFailure(this.error);
 
   /// Details about the transport error.
@@ -54,6 +56,8 @@ enum SldLoadErrorKind {
 /// This is distinct from [SldParseIssue], which describes problems within
 /// the XML content itself.
 class SldLoadError {
+  /// Creates a load error with the given [kind], [message], and optional
+  /// [httpStatusCode] and [uri].
   const SldLoadError({
     required this.kind,
     required this.message,

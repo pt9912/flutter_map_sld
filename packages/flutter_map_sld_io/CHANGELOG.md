@@ -1,3 +1,8 @@
+## 0.2.1
+
+- Added dartdoc comments to all public constructors.
+- Added example file for pub.dev scoring.
+
 ## 0.2.0
 
 - **WMS GetMap request building**: `WmsRequestBuilder` with WMS 1.1.1 and 1.3.0 support, correct SRS/CRS parameter, EPSG:4326 axis-order handling, and `SLD_BODY` parameter.

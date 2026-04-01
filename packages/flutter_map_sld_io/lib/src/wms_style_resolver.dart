@@ -4,6 +4,8 @@ import 'wms_capabilities.dart';
 
 /// A resolved association between a WMS layer and its matched SLD style.
 class ResolvedWmsStyle {
+  /// Creates a resolved style associating a WMS [layerInfo] with an optional
+  /// SLD [sldLayer] and [userStyle].
   const ResolvedWmsStyle({
     required this.layerInfo,
     required this.styleName,

@@ -2,6 +2,8 @@ import 'package:xml/xml.dart';
 
 /// A WMS layer as extracted from a GetCapabilities response.
 class WmsLayerInfo {
+  /// Creates a WMS layer info with the given [name], optional [title],
+  /// and available [styles].
   const WmsLayerInfo({
     required this.name,
     this.title,
@@ -20,6 +22,7 @@ class WmsLayerInfo {
 
 /// A named style available for a WMS layer.
 class WmsStyleInfo {
+  /// Creates a WMS style info with the given [name] and optional [title].
   const WmsStyleInfo({
     required this.name,
     this.title,
@@ -34,6 +37,8 @@ class WmsStyleInfo {
 
 /// Parsed WMS GetCapabilities metadata.
 class WmsCapabilities {
+  /// Creates parsed WMS capabilities with the given [layers] and optional
+  /// [version] and [title].
   const WmsCapabilities({
     this.version,
     this.title,
