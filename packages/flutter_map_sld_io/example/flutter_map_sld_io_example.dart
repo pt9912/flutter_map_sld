@@ -36,15 +36,19 @@ void main() async {
   }
 
   // 3. Build a WMS GetMap request URL
-  final getMapUrl = WmsRequestBuilder(
+  final builder = WmsRequestBuilder(
     baseUrl: Uri.parse('https://example.com/geoserver/wms'),
+    version: WmsVersion.v1_1_1,
     layers: ['topp:states'],
+    crs: 'EPSG:4326',
     styles: ['population'],
-    bbox: (minX: 0, minY: 0, maxX: 180, maxY: 90),
+  );
+
+  final getMapUrl = builder.getMapUrl(
+    bbox: [0, 0, 180, 90],
     width: 800,
     height: 600,
-    srs: 'EPSG:4326',
-  ).build();
+  );
 
   print('GetMap URL: $getMapUrl');
 }
