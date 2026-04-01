@@ -33,6 +33,7 @@ sealed class ComparisonFilter extends Filter {
   final Expression expression2;
 }
 
+/// True when both expressions evaluate to equal values.
 final class PropertyIsEqualTo extends ComparisonFilter {
   const PropertyIsEqualTo({
     required super.expression1,
@@ -58,6 +59,7 @@ final class PropertyIsEqualTo extends ComparisonFilter {
   int get hashCode => Object.hash(expression1, expression2);
 }
 
+/// True when both expressions evaluate to different values.
 final class PropertyIsNotEqualTo extends ComparisonFilter {
   const PropertyIsNotEqualTo({
     required super.expression1,
@@ -83,6 +85,7 @@ final class PropertyIsNotEqualTo extends ComparisonFilter {
   int get hashCode => Object.hash(expression1, expression2);
 }
 
+/// True when expression1 is numerically or lexicographically less than expression2.
 final class PropertyIsLessThan extends ComparisonFilter {
   const PropertyIsLessThan({
     required super.expression1,
@@ -106,6 +109,7 @@ final class PropertyIsLessThan extends ComparisonFilter {
   int get hashCode => Object.hash(expression1, expression2);
 }
 
+/// True when expression1 is numerically or lexicographically greater than expression2.
 final class PropertyIsGreaterThan extends ComparisonFilter {
   const PropertyIsGreaterThan({
     required super.expression1,
@@ -129,6 +133,7 @@ final class PropertyIsGreaterThan extends ComparisonFilter {
   int get hashCode => Object.hash(expression1, expression2);
 }
 
+/// True when expression1 is less than or equal to expression2.
 final class PropertyIsLessThanOrEqualTo extends ComparisonFilter {
   const PropertyIsLessThanOrEqualTo({
     required super.expression1,
@@ -152,6 +157,7 @@ final class PropertyIsLessThanOrEqualTo extends ComparisonFilter {
   int get hashCode => Object.hash(expression1, expression2);
 }
 
+/// True when expression1 is greater than or equal to expression2.
 final class PropertyIsGreaterThanOrEqualTo extends ComparisonFilter {
   const PropertyIsGreaterThanOrEqualTo({
     required super.expression1,
@@ -179,6 +185,7 @@ final class PropertyIsGreaterThanOrEqualTo extends ComparisonFilter {
 // Between, Like, Null
 // ---------------------------------------------------------------------------
 
+/// True when [expression] falls between [lowerBoundary] and [upperBoundary] (inclusive).
 final class PropertyIsBetween extends Filter {
   const PropertyIsBetween({
     required this.expression,
@@ -186,8 +193,13 @@ final class PropertyIsBetween extends Filter {
     required this.upperBoundary,
   });
 
+  /// The expression to test.
   final Expression expression;
+
+  /// Lower boundary (inclusive).
   final Expression lowerBoundary;
+
+  /// Upper boundary (inclusive).
   final Expression upperBoundary;
 
   @override
@@ -211,6 +223,7 @@ final class PropertyIsBetween extends Filter {
   int get hashCode => Object.hash(expression, lowerBoundary, upperBoundary);
 }
 
+/// True when [expression] matches [pattern] using wildcard/single-char syntax.
 final class PropertyIsLike extends Filter {
   const PropertyIsLike({
     required this.expression,
@@ -220,10 +233,19 @@ final class PropertyIsLike extends Filter {
     this.escapeChar = '\\',
   });
 
+  /// The expression to match.
   final Expression expression;
+
+  /// The pattern string containing wildcard and single-char placeholders.
   final String pattern;
+
+  /// Character representing zero or more characters (default `*`).
   final String wildCard;
+
+  /// Character representing exactly one character (default `?`).
   final String singleChar;
+
+  /// Escape character for literal wildcards (default `\`).
   final String escapeChar;
 
   @override
@@ -249,9 +271,11 @@ final class PropertyIsLike extends Filter {
       Object.hash(expression, pattern, wildCard, singleChar, escapeChar);
 }
 
+/// True when [expression] evaluates to `null`.
 final class PropertyIsNull extends Filter {
   const PropertyIsNull({required this.expression});
 
+  /// The expression to test for null.
   final Expression expression;
 
   @override
@@ -271,9 +295,11 @@ final class PropertyIsNull extends Filter {
 // Logical operators
 // ---------------------------------------------------------------------------
 
+/// Logical AND: true when all child [filters] evaluate to true.
 final class And extends Filter {
   const And({required this.filters});
 
+  /// The child filters (all must match).
   final List<Filter> filters;
 
   @override
@@ -289,9 +315,11 @@ final class And extends Filter {
   int get hashCode => Object.hashAll(filters);
 }
 
+/// Logical OR: true when any child [filters] evaluates to true.
 final class Or extends Filter {
   const Or({required this.filters});
 
+  /// The child filters (at least one must match).
   final List<Filter> filters;
 
   @override
@@ -307,9 +335,11 @@ final class Or extends Filter {
   int get hashCode => Object.hashAll(filters);
 }
 
+/// Logical NOT: negates the result of [filter].
 final class Not extends Filter {
   const Not({required this.filter});
 
+  /// The filter to negate.
   final Filter filter;
 
   @override
@@ -339,6 +369,7 @@ sealed class SpatialFilter extends Filter {
   final GmlGeometry geometry;
 }
 
+/// Bounding-box filter: true when the feature geometry intersects the [envelope].
 final class BBox extends SpatialFilter {
   const BBox({super.propertyName, required GmlEnvelope envelope})
       : super(geometry: envelope);
@@ -361,6 +392,7 @@ final class BBox extends SpatialFilter {
   int get hashCode => Object.hash(propertyName, geometry);
 }
 
+/// True when the feature geometry intersects the reference [geometry].
 final class Intersects extends SpatialFilter {
   const Intersects({super.propertyName, required super.geometry});
 
@@ -381,6 +413,7 @@ final class Intersects extends SpatialFilter {
   int get hashCode => Object.hash(propertyName, geometry);
 }
 
+/// True when the feature geometry is fully within the reference [geometry].
 final class Within extends SpatialFilter {
   const Within({super.propertyName, required super.geometry});
 
@@ -401,6 +434,7 @@ final class Within extends SpatialFilter {
   int get hashCode => Object.hash(propertyName, geometry);
 }
 
+/// True when the feature geometry fully contains the reference [geometry].
 final class Contains extends SpatialFilter {
   const Contains({super.propertyName, required super.geometry});
 
@@ -421,6 +455,7 @@ final class Contains extends SpatialFilter {
   int get hashCode => Object.hash(propertyName, geometry);
 }
 
+/// True when the feature geometry touches the reference [geometry].
 final class Touches extends SpatialFilter {
   const Touches({super.propertyName, required super.geometry});
 
@@ -443,6 +478,7 @@ final class Touches extends SpatialFilter {
   int get hashCode => Object.hash(propertyName, geometry);
 }
 
+/// True when the feature geometry crosses the reference [geometry].
 final class Crosses extends SpatialFilter {
   const Crosses({super.propertyName, required super.geometry});
 
@@ -484,6 +520,7 @@ final class SpatialOverlaps extends SpatialFilter {
   int get hashCode => Object.hash(propertyName, geometry);
 }
 
+/// True when the feature geometry does not intersect the reference [geometry].
 final class Disjoint extends SpatialFilter {
   const Disjoint({super.propertyName, required super.geometry});
 
@@ -524,6 +561,7 @@ sealed class DistanceFilter extends SpatialFilter {
   final String units;
 }
 
+/// True when the feature geometry is within [distance] of the reference [geometry].
 final class DWithin extends DistanceFilter {
   const DWithin({
     super.propertyName,
@@ -551,6 +589,7 @@ final class DWithin extends DistanceFilter {
   int get hashCode => Object.hash(propertyName, geometry, distance, units);
 }
 
+/// True when the feature geometry is beyond [distance] from the reference [geometry].
 final class Beyond extends DistanceFilter {
   const Beyond({
     super.propertyName,

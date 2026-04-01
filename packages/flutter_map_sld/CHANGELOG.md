@@ -1,3 +1,8 @@
+## 0.5.1
+
+- Added dartdoc comments to all filter classes (comparison, logical, spatial, distance).
+- Added conventionally named example file for pub.dev scoring.
+
 ## 0.5.0
 
 - **Composite expressions**: `Concatenate`, `FormatNumber`, `Categorize`, `Interpolate`, `Recode` with full evaluate/equality support, plus helper types `InterpolationPoint`, `InterpolateMode`, `RecodeMapping`.
