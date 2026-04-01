@@ -1,3 +1,13 @@
+## 0.5.0
+
+- **Composite expressions**: `Concatenate`, `FormatNumber`, `Categorize`, `Interpolate`, `Recode` with full evaluate/equality support, plus helper types `InterpolationPoint`, `InterpolateMode`, `RecodeMapping`.
+- **Spatial filters**: `BBox`, `Intersects`, `Within`, `Contains`, `Touches`, `Crosses`, `SpatialOverlaps`, `Disjoint`, `DWithin`, `Beyond` — OGC spatial filter operators with GML geometry parsing via `gml4dart`.
+- **Spatial operations**: `geometryEnvelope`, `envelopeIntersects`, `pointInPolygon`, `pointInEnvelope`, `distancePointToPoint`, `lineIntersectsEnvelope`, `geometryIntersects`, `geometryWithin`, `geometryDistance`.
+- **Expression parser refactored**: `parseFirstExpression`/`parseTwoExpressions` now use a whitelist of known expression element names, enabling nested composite expressions.
+- **Expression validation rules**: `Categorize` values/thresholds count, `Interpolate` sort order and minimum points, `Recode` duplicate input detection.
+- **New dependency**: `gml4dart: ^0.1.0` for typed geometry model and GML 2.x/3.x parsing.
+- **BREAKING**: `Filter.evaluate()` signature changed to `bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry})`. The parameter is optional, so existing call sites without geometry continue to work. `Rule.appliesTo()` and `SldDocument.selectMatchingRules()` extended with the same optional `{GmlGeometry? geometry}` parameter.
+
 ## 0.4.0
 
 - **Vector symbolizers**: `PointSymbolizer`, `LineSymbolizer`, `PolygonSymbolizer` with `Stroke`, `Fill`, `Graphic`, `Mark`, `ExternalGraphic`.
