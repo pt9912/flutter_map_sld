@@ -1,3 +1,7 @@
+## 0.2.2
+
+- Fixed example: use correct `WmsRequestBuilder` API (`version`, `crs`, `getMapUrl()`).
+
 ## 0.2.1
 
 - Added dartdoc comments to all public constructors.
