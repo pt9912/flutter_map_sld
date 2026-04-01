@@ -1,3 +1,7 @@
+## 0.1.3
+
+- Raise minimum Dart SDK to `>=3.6.0`.
+
 ## 0.1.2
 
 - Bump flutter_map_sld dependency to `^0.5.0`.

@@ -2,7 +2,7 @@ name: flutter_map_sld
 description: >-
   Parse, validate, and use OGC Styled Layer Descriptor (SLD) and Symbology
   Encoding (SE) styles in Dart. Raster-first, pure Dart, no Flutter dependency.
-version: 0.5.1
+version: 0.5.2
 homepage: https://github.com/pt9912/flutter_map_sld
 repository: https://github.com/pt9912/flutter_map_sld
 topics:
@@ -13,7 +13,7 @@ topics:
   - mapping
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
 
 dependencies:
   gml4dart: ^0.1.0

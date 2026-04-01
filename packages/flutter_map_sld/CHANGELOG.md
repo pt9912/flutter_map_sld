@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Raise minimum Dart SDK to `>=3.6.0`.
+
 ## 0.5.1
 
 - Added dartdoc comments to all filter classes (comparison, logical, spatial, distance).
