@@ -2,7 +2,7 @@ name: flutter_map_sld_io
 description: >-
   File and HTTP loading for flutter_map_sld. Reads SLD/SE styles from local
   files or remote URLs on Dart VM and server environments.
-version: 0.2.2
+version: 0.2.3
 homepage: https://github.com/pt9912/flutter_map_sld
 repository: https://github.com/pt9912/flutter_map_sld
 topics:
@@ -16,7 +16,7 @@ environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
-  flutter_map_sld: ^0.1.0
+  flutter_map_sld: ^0.5.0
   http: ^1.2.0
   xml: ^6.3.0
 

@@ -1,3 +1,7 @@
+## 0.2.3
+
+- Bump flutter_map_sld dependency to `^0.5.0`.
+
 ## 0.2.2
 
 - Fixed example: use correct `WmsRequestBuilder` API (`version`, `crs`, `getMapUrl()`).
