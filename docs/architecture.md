@@ -649,16 +649,26 @@ Pflicht-Testfälle für v1:
 | Abhängigkeit | Rolle | Einbindung |
 |-------------|-------|------------|
 | `xml` (pub.dev) | DOM-basierte XML-Verarbeitung | reguläre Dependency im Core-Package |
+| `gml4dart` (pub.dev) | GML-Parsing und Geometrie-Modell für Spatial-Filter | reguläre Dependency im Core-Package |
 | `flutter_map` | Kartenadapter | reguläre Dependency nur im Package `flutter_map_sld_flutter_map` |
-| `http` / `dio` | HTTP-basierter SLD-Abruf | reguläre Dependency nur im Package `flutter_map_sld_io` |
+| `http` | HTTP-basierter SLD-Abruf | reguläre Dependency nur im Package `flutter_map_sld_io` |
 | Flutter SDK | Widget-Layer | nur im Package `flutter_map_sld_flutter_map`, nicht im Core |
 
 Versionsstrategie:
 
-- Minimale Dart-SDK-Version: `>=3.0.0` (für sealed classes und records)
+- Minimale Dart-SDK-Version: `>=3.6.0`
 - `xml`-Package: kompatibel mit aktueller Stable, Minimum-Version in `pubspec.yaml` pinnen
+- `gml4dart`: `^0.1.0` für Geometrie-Modell und GML 2.x/3.x Parsing
 - `flutter_map_sld_flutter_map`: definiert eine normale kompatible Versionsrange auf `flutter_map`
 - Adapter-Packages folgen der Core-Version als Minimum-Constraint und können unabhängig Patch-Releases erhalten
+
+Workspace:
+
+Das Repository nutzt [Dart Workspaces](https://dart.dev/tools/pub/workspaces).
+Die Root-`pubspec.yaml` listet alle Packages im `workspace:`-Feld.
+Jedes Package enthält `resolution: workspace` und wird lokal als Pfad-Dependency aufgelöst.
+Docker-Builds strippen `resolution: workspace` per `sed` und erzeugen `pubspec_overrides.yaml` inline,
+damit jedes Package isoliert gebaut werden kann.
 
 ## Technische Entscheidungen
 

@@ -1,6 +1,8 @@
-# Implementierungsplan
+# Implementierungsplan (abgeschlossen)
 
-Konkreter Umsetzungsplan für die beiden offenen Roadmap-Phasen.
+> **Status:** Beide Phasen wurden in v0.5.0 umgesetzt. Dieses Dokument dient als Referenz für die getroffenen Architekturentscheidungen.
+
+Konkreter Umsetzungsplan für die beiden Roadmap-Phasen.
 Bezieht sich auf die bestehende Architektur: `sealed class Expression` / `sealed class Filter`, namespace-aware XML-Parsing, separater Validierungsschritt.
 
 **Konventionen im gesamten Plan:**

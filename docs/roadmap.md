@@ -1,73 +1,37 @@
 # Roadmap
 
-Diese Roadmap sammelt die größeren fachlichen Ausbaupunkte, die nach den bisher umgesetzten Core-, IO- und Flutter-Adapter-Phasen noch offen sind.
+Diese Roadmap sammelt die größeren fachlichen Ausbaupunkte, die nach den bisher umgesetzten Phasen noch offen sind.
 
 Sie ist bewusst knapp gehalten: kein Release-Protokoll, sondern nur die nächsten funktionalen Themenblöcke.
 
-## 1. Spatial-Filter
+## Umgesetzt
 
-Ziel: Unterstützung der OGC-Filteroperatoren, die Geometriebeziehungen oder Distanzen auswerten.
+Die folgenden Themen wurden bereits implementiert:
 
-Geplanter Scope:
-- `BBOX`
-- `Intersects`
-- `Within`
-- `Contains`
-- `Touches`
-- `Crosses`
-- `Overlaps`
-- `Disjoint`
-- `DWithin`
-- `Beyond`
+- **Zusammengesetzte Expressions** (v0.5.0): `Concatenate`, `FormatNumber`, `Categorize`, `Interpolate`, `Recode` mit Parsing, Evaluation und Validierung.
+- **Spatial-Filter** (v0.5.0): `BBOX`, `Intersects`, `Within`, `Contains`, `Touches`, `Crosses`, `SpatialOverlaps`, `Disjoint`, `DWithin`, `Beyond` mit GML-Geometrie-Parsing via `gml4dart`.
 
-Offene Architekturfragen:
-- Geometrie-Repräsentation im Core: eigenes Minimalmodell oder Adapter auf existierende Geometry-Typen
-- CRS-/Axis-Order-Semantik für Distanz- und BBOX-Operationen
-- Evaluationskontext: wie Geometrien neben `Map<String, dynamic>` an Filter übergeben werden
-- Verhalten bei fehlender Geometrie oder inkompatiblen Typen
+## Offen
 
-Voraussichtliche Umsetzung:
-- Domain-Modell für Spatial-Filter im Core
-- Parser für OGC/SE-Filterelemente
-- Evaluations-API mit explizitem Geometrie-Kontext
-- Tests mit einfachen Punkt-, Linien- und Polygonfällen
+### 1. Erweiterte Spatial-Operationen
 
-## 2. Zusammengesetzte Expressions
+Aktuelle Einschränkungen der Spatial-Filter:
 
-Ziel: Unterstützung typischer SE-/GeoServer-Ausdrucksformen über `PropertyName` und `Literal` hinaus.
+- Polygon/Polygon-Operationen (Touches, Crosses) nutzen Envelope-Approximation
+- Keine CRS-Transformation im Core (projizierte Koordinaten vorausgesetzt)
+- Multi-Geometrien werden über Envelope-Fallback abgedeckt, nicht per Einzelgeometrie-Iteration
 
-Geplanter Scope:
-- `Concatenate`
-- `FormatNumber`
-- `Categorize`
-- `Interpolate`
-- `Recode`
+### 2. Vollständige FormatNumber-Unterstützung
 
-Offene Architekturfragen:
-- einheitliches Funktionsmodell oder separate Expression-Typen
-- Typkonvertierung zwischen `String`, `num`, `bool` und `null`
-- Fehler- und Fallback-Verhalten bei unvollständigen Argumenten
-- Interop-Semantik zu GeoServer bei Kategorisierung und Interpolation
+Aktuell nur einfache Dezimalstellen-Rundung (`#.##`). Offen:
 
-Voraussichtliche Umsetzung:
-- Erweiterung des `Expression`-Modells im Core
-- Parser für verschachtelte Expressions und Funktionsargumente
-- Evaluationssemantik mit klaren Typregeln
-- Einsatz in `TextSymbolizer.label` und perspektivisch in Symbolizer-Parametern
+- Tausendergruppierung
+- Vollständige Java-DecimalFormat-Kompatibilität (GeoServer-Standard)
 
-## Reihenfolge
-
-Empfohlene Reihenfolge:
-1. zusammengesetzte Expressions
-2. Spatial-Filter
-
-Begründung:
-- Expressions sind für Labeling und symbolizernahe Werte breiter wiederverwendbar.
-- Spatial-Filter brauchen zusätzlich einen belastbaren Geometrie- und CRS-Kontext.
-
-## Nicht Teil dieser Roadmap
+### 3. Weitere OGC-Funktionen
 
 Vorerst nicht enthalten:
-- vollständige OGC-SE-Funktionsabdeckung
+
+- Vollständige OGC-SE-Funktionsabdeckung
 - Rendering-Engine im Core
-- generische Geometriebibliothek als harte Pflicht-Abhängigkeit
+- Generische Geometriebibliothek als harte Pflicht-Abhängigkeit

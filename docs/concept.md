@@ -113,15 +113,26 @@ Explizit nicht Teil des MVP:
 
 ### Spätere Ausbaustufen
 
-- `PointSymbolizer`, `LineSymbolizer`, `PolygonSymbolizer`, `TextSymbolizer`
-- Filter und Expressions
-- Maßstabsabhängige Regeln
-- `ChannelSelection`, `ShadedRelief`, `ImageOutline`
-- Vendor Options und GeoServer-spezifische Erweiterungen
-- `flutter_map_sld_io` als separates Adapter-Package
-- Direkte Adapter für `flutter_map`
-- WMS-Interop und Request-Helfer als separates Adapter-Package oder Modul oberhalb des Core
-- Legendenerzeugung und Style-Vorschau
+Bereits umgesetzt:
+
+- ~~`PointSymbolizer`, `LineSymbolizer`, `PolygonSymbolizer`, `TextSymbolizer`~~ (v0.4.0)
+- ~~Filter und Expressions~~ (v0.4.0 Basis, v0.5.0 Composite Expressions)
+- ~~Maßstabsabhängige Regeln~~ (v0.2.0)
+- ~~`ChannelSelection`, `ShadedRelief`~~ (v0.2.0)
+- ~~Vendor Options~~ (v0.2.0)
+- ~~`flutter_map_sld_io` als separates Adapter-Package~~ (v0.1.0)
+- ~~Direkte Adapter für `flutter_map`~~ (v0.1.0)
+- ~~WMS-Interop und Request-Helfer~~ (flutter_map_sld_io v0.2.0)
+- ~~Legendenerzeugung~~ (v0.1.0)
+- ~~Spatial-Filter (BBOX, Intersects, Within, DWithin etc.)~~ (v0.5.0)
+- ~~Zusammengesetzte Expressions (Concatenate, Categorize, Interpolate, Recode)~~ (v0.5.0)
+
+Noch offen:
+
+- `ImageOutline`
+- Erweiterte Spatial-Operationen (Polygon/Polygon, CRS-Handling)
+- Vollständige FormatNumber/DecimalFormat-Kompatibilität
+- Style-Vorschau
 
 ## Nicht-Ziele für v1
 
