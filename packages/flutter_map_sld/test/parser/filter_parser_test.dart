@@ -156,4 +156,173 @@ void main() {
       expect(f!.evaluate({'type': 'city'}), isTrue);
     });
   });
+
+  // -----------------------------------------------------------------------
+  // Composite expression parsing
+  // -----------------------------------------------------------------------
+  group('parseExpression — composite', () {
+    test('parses Concatenate', () {
+      final el = _el(
+        '<Concatenate>'
+        '<PropertyName>vorname</PropertyName>'
+        '<Literal>-</Literal>'
+        '<PropertyName>nachname</PropertyName>'
+        '</Concatenate>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isA<Concatenate>());
+      final concat = expr! as Concatenate;
+      expect(concat.expressions, hasLength(3));
+      expect(
+        concat.evaluate({'vorname': 'Max', 'nachname': 'Müller'}),
+        'Max-Müller',
+      );
+      expect(issues, isEmpty);
+    });
+
+    test('parses FormatNumber', () {
+      final el = _el(
+        '<FormatNumber>'
+        '<PropertyName>population</PropertyName>'
+        '<Pattern>#.##</Pattern>'
+        '</FormatNumber>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isA<FormatNumber>());
+      final fmt = expr! as FormatNumber;
+      expect(fmt.pattern, '#.##');
+      expect(fmt.evaluate({'population': 12345.6789}), '12345.68');
+      expect(issues, isEmpty);
+    });
+
+    test('parses Categorize', () {
+      final el = _el(
+        '<Categorize>'
+        '<LookupValue><PropertyName>pop</PropertyName></LookupValue>'
+        '<Value>small</Value>'
+        '<Threshold>10000</Threshold>'
+        '<Value>medium</Value>'
+        '<Threshold>100000</Threshold>'
+        '<Value>large</Value>'
+        '</Categorize>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isA<Categorize>());
+      final cat = expr! as Categorize;
+      expect(cat.thresholds, hasLength(2));
+      expect(cat.values, hasLength(3));
+      expect(cat.evaluate({'pop': 500}), 'small');
+      expect(cat.evaluate({'pop': 50000}), 'medium');
+      expect(cat.evaluate({'pop': 200000}), 'large');
+      expect(issues, isEmpty);
+    });
+
+    test('parses Interpolate', () {
+      final el = _el(
+        '<Interpolate method="linear">'
+        '<LookupValue><PropertyName>elevation</PropertyName></LookupValue>'
+        '<InterpolationPoint><Data>0</Data><Value>0</Value></InterpolationPoint>'
+        '<InterpolationPoint><Data>1000</Data><Value>100</Value></InterpolationPoint>'
+        '</Interpolate>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isA<Interpolate>());
+      final interp = expr! as Interpolate;
+      expect(interp.dataPoints, hasLength(2));
+      expect(interp.mode, InterpolateMode.linear);
+      expect(interp.evaluate({'elevation': 500}), closeTo(50.0, 0.001));
+      expect(issues, isEmpty);
+    });
+
+    test('parses Recode', () {
+      final el = _el(
+        '<Recode>'
+        '<LookupValue><PropertyName>code</PropertyName></LookupValue>'
+        '<MapItem><Data>A</Data><Value>Alpha</Value></MapItem>'
+        '<MapItem><Data>B</Data><Value>Bravo</Value></MapItem>'
+        '</Recode>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isA<Recode>());
+      final recode = expr! as Recode;
+      expect(recode.mappings, hasLength(2));
+      expect(recode.evaluate({'code': 'A'}), 'Alpha');
+      expect(recode.evaluate({'code': 'B'}), 'Bravo');
+      expect(recode.evaluate({'code': 'C'}), isNull);
+      expect(issues, isEmpty);
+    });
+
+    test('nested Concatenate with FormatNumber', () {
+      final el = _el(
+        '<Concatenate>'
+        '<Literal>Population:</Literal>'
+        '<FormatNumber>'
+        '<PropertyName>pop</PropertyName>'
+        '<Pattern>#.#</Pattern>'
+        '</FormatNumber>'
+        '</Concatenate>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isA<Concatenate>());
+      final concat = expr! as Concatenate;
+      expect(concat.expressions, hasLength(2));
+      expect(concat.evaluate({'pop': 1234.56}), 'Population:1234.6');
+      expect(issues, isEmpty);
+    });
+
+    test('Categorize missing LookupValue warns', () {
+      final el = _el(
+        '<Categorize>'
+        '<Value>small</Value>'
+        '<Threshold>10000</Threshold>'
+        '<Value>large</Value>'
+        '</Categorize>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isNull);
+      expect(issues.any((i) => i.code == 'categorize-missing-lookup'), isTrue);
+    });
+
+    test('Recode without MapItems warns', () {
+      final el = _el(
+        '<Recode>'
+        '<LookupValue><PropertyName>code</PropertyName></LookupValue>'
+        '</Recode>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseExpression(el, issues, '/test');
+
+      expect(expr, isNull);
+      expect(issues.any((i) => i.code == 'recode-no-mappings'), isTrue);
+    });
+
+    test('parseFirstExpression finds Concatenate', () {
+      final el = _el(
+        '<Label>'
+        '<Concatenate>'
+        '<PropertyName>name</PropertyName>'
+        '<Literal> city</Literal>'
+        '</Concatenate>'
+        '</Label>',
+      );
+      final issues = <SldParseIssue>[];
+      final expr = parseFirstExpression(el, issues, '/test');
+
+      expect(expr, isA<Concatenate>());
+    });
+  });
 }

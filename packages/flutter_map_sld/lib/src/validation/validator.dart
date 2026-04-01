@@ -1,6 +1,7 @@
 import '../model/issue.dart';
 import '../model/sld_document.dart';
 import 'rules/color_map_rules.dart';
+import 'rules/expression_rules.dart';
 import 'rules/raster_rules.dart';
 import 'rules/scale_rules.dart';
 import 'rules/vector_rules.dart';
@@ -70,6 +71,10 @@ class SldValidator {
             if (ts != null) {
               validateTextSymbolizer(
                   ts, issues, '$rulePath.textSymbolizer');
+              if (ts.label != null) {
+                validateExpression(
+                    ts.label!, issues, '$rulePath.textSymbolizer.label');
+              }
             }
           }
         }

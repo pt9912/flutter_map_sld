@@ -36,6 +36,352 @@ void main() {
   });
 
   // -----------------------------------------------------------------------
+  // Composite expressions
+  // -----------------------------------------------------------------------
+  group('Concatenate', () {
+    test('concatenates two strings', () {
+      const expr = Concatenate(expressions: [
+        Literal('hello'),
+        Literal(' world'),
+      ]);
+      expect(expr.evaluate({}), 'hello world');
+    });
+
+    test('concatenates with PropertyName', () {
+      const expr = Concatenate(expressions: [
+        PropertyName('first'),
+        Literal(' '),
+        PropertyName('last'),
+      ]);
+      expect(expr.evaluate({'first': 'Max', 'last': 'Müller'}), 'Max Müller');
+    });
+
+    test('returns null when any child is null', () {
+      const expr = Concatenate(expressions: [
+        PropertyName('first'),
+        Literal(' '),
+        PropertyName('missing'),
+      ]);
+      expect(expr.evaluate({'first': 'Max'}), isNull);
+    });
+
+    test('empty expressions list returns empty string', () {
+      const expr = Concatenate(expressions: []);
+      expect(expr.evaluate({}), '');
+    });
+
+    test('equality and hashCode (non-const)', () {
+      final a = Concatenate(expressions: [Literal('a'), Literal('b')]);
+      final b = Concatenate(expressions: [Literal('a'), Literal('b')]);
+      final c = Concatenate(expressions: [Literal('a'), Literal('c')]);
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a, isNot(equals(c)));
+    });
+  });
+
+  group('FormatNumber', () {
+    test('integer format', () {
+      const expr = FormatNumber(
+        numericValue: Literal(3.7),
+        pattern: '#',
+      );
+      expect(expr.evaluate({}), '4');
+    });
+
+    test('two decimal places', () {
+      const expr = FormatNumber(
+        numericValue: Literal(3.14159),
+        pattern: '#.##',
+      );
+      expect(expr.evaluate({}), '3.14');
+    });
+
+    test('zero decimal places with 0-pattern', () {
+      const expr = FormatNumber(
+        numericValue: Literal(42.567),
+        pattern: '0.0',
+      );
+      expect(expr.evaluate({}), '42.6');
+    });
+
+    test('non-numeric value returns null', () {
+      const expr = FormatNumber(
+        numericValue: Literal('abc'),
+        pattern: '#.##',
+      );
+      expect(expr.evaluate({}), isNull);
+    });
+
+    test('string-encoded number is parsed', () {
+      const expr = FormatNumber(
+        numericValue: PropertyName('pop'),
+        pattern: '#.#',
+      );
+      expect(expr.evaluate({'pop': '123.456'}), '123.5');
+    });
+
+    test('equality and hashCode (non-const)', () {
+      final a = FormatNumber(numericValue: Literal(1), pattern: '#');
+      final b = FormatNumber(numericValue: Literal(1), pattern: '#');
+      final c = FormatNumber(numericValue: Literal(2), pattern: '#');
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a, isNot(equals(c)));
+    });
+  });
+
+  group('Categorize', () {
+    test('below first threshold', () {
+      const expr = Categorize(
+        lookupValue: PropertyName('pop'),
+        thresholds: [Literal(10000), Literal(100000)],
+        values: [Literal('small'), Literal('medium'), Literal('large')],
+      );
+      expect(expr.evaluate({'pop': 500}), 'small');
+    });
+
+    test('between thresholds', () {
+      const expr = Categorize(
+        lookupValue: PropertyName('pop'),
+        thresholds: [Literal(10000), Literal(100000)],
+        values: [Literal('small'), Literal('medium'), Literal('large')],
+      );
+      expect(expr.evaluate({'pop': 50000}), 'medium');
+    });
+
+    test('above last threshold', () {
+      const expr = Categorize(
+        lookupValue: PropertyName('pop'),
+        thresholds: [Literal(10000), Literal(100000)],
+        values: [Literal('small'), Literal('medium'), Literal('large')],
+      );
+      expect(expr.evaluate({'pop': 200000}), 'large');
+    });
+
+    test('null lookup uses fallback', () {
+      const expr = Categorize(
+        lookupValue: PropertyName('missing'),
+        thresholds: [Literal(10)],
+        values: [Literal('lo'), Literal('hi')],
+        fallbackValue: Literal('unknown'),
+      );
+      expect(expr.evaluate({}), 'unknown');
+    });
+
+    test('null lookup without fallback returns null', () {
+      const expr = Categorize(
+        lookupValue: PropertyName('missing'),
+        thresholds: [Literal(10)],
+        values: [Literal('lo'), Literal('hi')],
+      );
+      expect(expr.evaluate({}), isNull);
+    });
+
+    test('non-numeric threshold returns fallback', () {
+      const expr = Categorize(
+        lookupValue: PropertyName('x'),
+        thresholds: [Literal('not-a-number')],
+        values: [Literal('lo'), Literal('hi')],
+        fallbackValue: Literal('err'),
+      );
+      expect(expr.evaluate({'x': 5}), 'err');
+    });
+
+    test('equality and hashCode (non-const)', () {
+      final a = Categorize(
+        lookupValue: PropertyName('x'),
+        thresholds: [Literal(5)],
+        values: [Literal('a'), Literal('b')],
+      );
+      final b = Categorize(
+        lookupValue: PropertyName('x'),
+        thresholds: [Literal(5)],
+        values: [Literal('a'), Literal('b')],
+      );
+      final c = Categorize(
+        lookupValue: PropertyName('x'),
+        thresholds: [Literal(10)],
+        values: [Literal('a'), Literal('b')],
+      );
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a, isNot(equals(c)));
+    });
+  });
+
+  group('Interpolate', () {
+    test('exact data point', () {
+      const expr = Interpolate(
+        lookupValue: PropertyName('elev'),
+        dataPoints: [
+          InterpolationPoint(data: 0, value: Literal(0.0)),
+          InterpolationPoint(data: 100, value: Literal(1.0)),
+        ],
+      );
+      expect(expr.evaluate({'elev': 0}), 0.0);
+      expect(expr.evaluate({'elev': 100}), 1.0);
+    });
+
+    test('linear interpolation between points', () {
+      const expr = Interpolate(
+        lookupValue: PropertyName('elev'),
+        dataPoints: [
+          InterpolationPoint(data: 0, value: Literal(0.0)),
+          InterpolationPoint(data: 100, value: Literal(1.0)),
+        ],
+      );
+      expect(expr.evaluate({'elev': 50}), closeTo(0.5, 0.001));
+    });
+
+    test('below range returns first value', () {
+      const expr = Interpolate(
+        lookupValue: PropertyName('elev'),
+        dataPoints: [
+          InterpolationPoint(data: 0, value: Literal(10.0)),
+          InterpolationPoint(data: 100, value: Literal(20.0)),
+        ],
+      );
+      expect(expr.evaluate({'elev': -50}), 10.0);
+    });
+
+    test('above range returns last value', () {
+      const expr = Interpolate(
+        lookupValue: PropertyName('elev'),
+        dataPoints: [
+          InterpolationPoint(data: 0, value: Literal(10.0)),
+          InterpolationPoint(data: 100, value: Literal(20.0)),
+        ],
+      );
+      expect(expr.evaluate({'elev': 200}), 20.0);
+    });
+
+    test('null lookup uses fallback', () {
+      const expr = Interpolate(
+        lookupValue: PropertyName('missing'),
+        dataPoints: [
+          InterpolationPoint(data: 0, value: Literal(0.0)),
+        ],
+        fallbackValue: Literal(-1.0),
+      );
+      expect(expr.evaluate({}), -1.0);
+    });
+
+    test('non-numeric interpolation values use lower bound', () {
+      const expr = Interpolate(
+        lookupValue: PropertyName('x'),
+        dataPoints: [
+          InterpolationPoint(data: 0, value: Literal('low')),
+          InterpolationPoint(data: 100, value: Literal('high')),
+        ],
+      );
+      expect(expr.evaluate({'x': 50}), 'low');
+    });
+
+    test('equality and hashCode (non-const)', () {
+      final a = Interpolate(
+        lookupValue: PropertyName('x'),
+        dataPoints: [InterpolationPoint(data: 0, value: Literal(0))],
+      );
+      final b = Interpolate(
+        lookupValue: PropertyName('x'),
+        dataPoints: [InterpolationPoint(data: 0, value: Literal(0))],
+      );
+      final c = Interpolate(
+        lookupValue: PropertyName('x'),
+        dataPoints: [InterpolationPoint(data: 1, value: Literal(0))],
+      );
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a, isNot(equals(c)));
+    });
+
+    test('InterpolationPoint hashCode (non-const)', () {
+      final a = InterpolationPoint(data: 5, value: Literal(10));
+      final b = InterpolationPoint(data: 5, value: Literal(10));
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+    });
+  });
+
+  group('Recode', () {
+    test('known key returns mapped value', () {
+      const expr = Recode(
+        lookupValue: PropertyName('code'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('A'), outputValue: Literal('Alpha')),
+          RecodeMapping(inputValue: Literal('B'), outputValue: Literal('Bravo')),
+        ],
+      );
+      expect(expr.evaluate({'code': 'A'}), 'Alpha');
+      expect(expr.evaluate({'code': 'B'}), 'Bravo');
+    });
+
+    test('unknown key returns fallback', () {
+      const expr = Recode(
+        lookupValue: PropertyName('code'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('A'), outputValue: Literal('Alpha')),
+        ],
+        fallbackValue: Literal('unknown'),
+      );
+      expect(expr.evaluate({'code': 'Z'}), 'unknown');
+    });
+
+    test('unknown key without fallback returns null', () {
+      const expr = Recode(
+        lookupValue: PropertyName('code'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('A'), outputValue: Literal('Alpha')),
+        ],
+      );
+      expect(expr.evaluate({'code': 'Z'}), isNull);
+    });
+
+    test('null lookup returns fallback', () {
+      const expr = Recode(
+        lookupValue: PropertyName('missing'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('A'), outputValue: Literal('Alpha')),
+        ],
+        fallbackValue: Literal('n/a'),
+      );
+      expect(expr.evaluate({}), 'n/a');
+    });
+
+    test('equality and hashCode (non-const)', () {
+      final a = Recode(
+        lookupValue: PropertyName('x'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('A'), outputValue: Literal('1')),
+        ],
+      );
+      final b = Recode(
+        lookupValue: PropertyName('x'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('A'), outputValue: Literal('1')),
+        ],
+      );
+      final c = Recode(
+        lookupValue: PropertyName('x'),
+        mappings: [
+          RecodeMapping(inputValue: Literal('B'), outputValue: Literal('1')),
+        ],
+      );
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+      expect(a, isNot(equals(c)));
+    });
+
+    test('RecodeMapping hashCode (non-const)', () {
+      final a = RecodeMapping(inputValue: Literal('A'), outputValue: Literal('1'));
+      final b = RecodeMapping(inputValue: Literal('A'), outputValue: Literal('1'));
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Comparison filters
   // -----------------------------------------------------------------------
   group('PropertyIsEqualTo', () {
