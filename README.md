@@ -90,9 +90,6 @@ docker build --target test -t flutter_map_sld:test .
 docker build --target coverage --no-cache-filter coverage --progress=plain .
 docker build --target coverage-check --no-cache-filter coverage --progress=plain --build-arg COVERAGE_MIN=95 .
 
-# Dokumentation generieren
-docker build --target doc -t flutter_map_sld:doc .
-
 # Publish Dry-Run
 docker build --target publish-check -t flutter_map_sld:publish-check .
 
@@ -101,7 +98,6 @@ docker build --target io-analyze -t flutter_map_sld_io:analyze .
 docker build --target io-test -t flutter_map_sld_io:test .
 docker build --target io-coverage --no-cache-filter io-coverage --progress=plain .
 docker build --target io-coverage-check --no-cache-filter io-coverage --progress=plain --build-arg COVERAGE_MIN=91 .
-docker build --target io-doc -t flutter_map_sld_io:doc .
 docker build --target io-publish-check -t flutter_map_sld_io:publish-check .
 
 # Flutter-Adapter-Package
@@ -109,9 +105,26 @@ docker build --target flutter-map-analyze -t flutter_map_sld_flutter_map:analyze
 docker build --target flutter-map-test -t flutter_map_sld_flutter_map:test .
 docker build --target flutter-map-coverage --no-cache-filter flutter-map-coverage --progress=plain .
 docker build --target flutter-map-coverage-check --no-cache-filter flutter-map-coverage --progress=plain --build-arg COVERAGE_MIN=96 .
-docker build --target flutter-map-doc -t flutter_map_sld_flutter_map:doc .
 docker build --target flutter-map-publish-check -t flutter_map_sld_flutter_map:publish-check .
 ```
+
+### API-Dokumentation generieren
+
+```bash
+# Core
+docker build --target doc -t flutter_map_sld:doc .
+docker run --rm flutter_map_sld:doc | tar -xzf -
+
+# IO-Package
+docker build --target io-doc -t flutter_map_sld_io:doc .
+docker run --rm flutter_map_sld_io:doc | tar -xzf -
+
+# Flutter-Adapter-Package
+docker build --target flutter-map-doc -t flutter_map_sld_flutter_map:doc .
+docker run --rm flutter_map_sld_flutter_map:doc | tar -xzf -
+```
+
+Die HTML-Dokumentation liegt danach jeweils in `doc/api/`.
 
 ### Manueller Publish via Docker
 
