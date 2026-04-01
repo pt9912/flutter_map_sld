@@ -5,8 +5,8 @@ import 'expression.dart';
 
 /// An OGC filter that can be evaluated against feature properties.
 ///
-/// The optional [geometry] parameter supplies the feature's geometry for
-/// spatial filter evaluation. Non-spatial filters ignore it.
+/// The optional `geometry` parameter on `evaluate()` supplies the feature's
+/// geometry for spatial filter evaluation. Non-spatial filters ignore it.
 sealed class Filter {
   const Filter();
 
@@ -369,7 +369,7 @@ sealed class SpatialFilter extends Filter {
   final GmlGeometry geometry;
 }
 
-/// Bounding-box filter: true when the feature geometry intersects the [envelope].
+/// Bounding-box filter: true when the feature geometry intersects the envelope.
 final class BBox extends SpatialFilter {
   const BBox({super.propertyName, required GmlEnvelope envelope})
       : super(geometry: envelope);

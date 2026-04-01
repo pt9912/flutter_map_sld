@@ -1,4 +1,0 @@
-# Local monorepo override — resolved by flutter pub, not included in publish.
-dependency_overrides:
-  flutter_map_sld:
-    path: ../flutter_map_sld

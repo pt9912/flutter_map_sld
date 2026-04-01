@@ -13,10 +13,13 @@ WORKDIR /app
 # Copy only pubspec first for dependency caching
 COPY packages/flutter_map_sld/pubspec.yaml packages/flutter_map_sld/pubspec.yaml
 WORKDIR /app/packages/flutter_map_sld
+# Strip workspace resolution for isolated Docker build
+RUN sed -i '/^resolution: workspace$/d' pubspec.yaml
 RUN dart pub get
 
-# Copy the rest of the package
+# Copy the rest of the package, then re-strip (COPY overwrites the sed'd pubspec)
 COPY packages/flutter_map_sld/ /app/packages/flutter_map_sld/
+RUN sed -i '/^resolution: workspace$/d' pubspec.yaml
 
 # Analyze
 FROM base AS analyze
@@ -38,7 +41,7 @@ RUN dart pub global run coverage:format_coverage \
     --lcov \
     --in=coverage \
     --out=coverage/lcov.info
-RUN lcov --summary coverage/lcov.info    
+RUN lcov --summary coverage/lcov.info
 
 # Coverage threshold check.
 FROM coverage AS coverage-check
@@ -82,18 +85,22 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Copy core package (dependency)
+# Copy core package (dependency) and strip workspace resolution
 COPY packages/flutter_map_sld/pubspec.yaml packages/flutter_map_sld/pubspec.yaml
+RUN sed -i '/^resolution: workspace$/d' packages/flutter_map_sld/pubspec.yaml
 COPY packages/flutter_map_sld/lib/ packages/flutter_map_sld/lib/
 
 # Copy IO package pubspec first for dependency caching
 COPY packages/flutter_map_sld_io/pubspec.yaml packages/flutter_map_sld_io/pubspec.yaml
-COPY packages/flutter_map_sld_io/pubspec_overrides.yaml packages/flutter_map_sld_io/pubspec_overrides.yaml
 WORKDIR /app/packages/flutter_map_sld_io
+# Strip workspace resolution and add local path override
+RUN sed -i '/^resolution: workspace$/d' pubspec.yaml
+RUN printf 'dependency_overrides:\n  flutter_map_sld:\n    path: ../flutter_map_sld\n' > pubspec_overrides.yaml
 RUN dart pub get
 
-# Copy the rest of the IO package
+# Copy the rest of the IO package, then re-strip
 COPY packages/flutter_map_sld_io/ /app/packages/flutter_map_sld_io/
+RUN sed -i '/^resolution: workspace$/d' pubspec.yaml
 
 # Analyze
 FROM io-base AS io-analyze
@@ -115,7 +122,7 @@ RUN dart pub global run coverage:format_coverage \
     --lcov \
     --in=coverage \
     --out=coverage/lcov.info
-RUN lcov --summary coverage/lcov.info    
+RUN lcov --summary coverage/lcov.info
 
 # Coverage threshold check.
 FROM io-coverage AS io-coverage-check
@@ -159,18 +166,22 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Copy core package (dependency)
+# Copy core package (dependency) and strip workspace resolution
 COPY packages/flutter_map_sld/pubspec.yaml packages/flutter_map_sld/pubspec.yaml
+RUN sed -i '/^resolution: workspace$/d' packages/flutter_map_sld/pubspec.yaml
 COPY packages/flutter_map_sld/lib/ packages/flutter_map_sld/lib/
 
 # Copy Flutter adapter package pubspec first for dependency caching
 COPY packages/flutter_map_sld_flutter_map/pubspec.yaml packages/flutter_map_sld_flutter_map/pubspec.yaml
-COPY packages/flutter_map_sld_flutter_map/pubspec_overrides.yaml packages/flutter_map_sld_flutter_map/pubspec_overrides.yaml
 WORKDIR /app/packages/flutter_map_sld_flutter_map
+# Strip workspace resolution and add local path override
+RUN sed -i '/^resolution: workspace$/d' pubspec.yaml
+RUN printf 'dependency_overrides:\n  flutter_map_sld:\n    path: ../flutter_map_sld\n' > pubspec_overrides.yaml
 RUN flutter pub get
 
-# Copy the rest of the Flutter adapter package
+# Copy the rest of the Flutter adapter package, then re-strip
 COPY packages/flutter_map_sld_flutter_map/ /app/packages/flutter_map_sld_flutter_map/
+RUN sed -i '/^resolution: workspace$/d' pubspec.yaml
 
 # Analyze
 FROM flutter-map-base AS flutter-map-analyze
