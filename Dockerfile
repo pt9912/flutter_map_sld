@@ -55,9 +55,16 @@ RUN awk -F'[,:]' -v min="$COVERAGE_MIN" '\
     if (pct < min) { exit 2 } \
     }' coverage/lcov.info
 
-# Doc
+# Doc — generate API documentation into doc/api/.
+#
+# Generate + extract:
+#   docker build --target doc -t flutter_map_sld:doc .
+#   docker run --rm flutter_map_sld:doc | tar -xzf -
 FROM base AS doc
 RUN dart doc
+RUN test -f doc/api/index.html && echo "API docs generated: $(find doc/api -name '*.html' | wc -l) HTML files"
+RUN tar -czf /doc-api.tar.gz doc/api
+ENTRYPOINT ["cat", "/doc-api.tar.gz"]
 
 # Publish dry-run
 FROM base AS publish-check
@@ -125,9 +132,16 @@ RUN awk -F'[,:]' -v min="$COVERAGE_MIN" '\
     if (pct < min) { exit 2 } \
     }' coverage/lcov.info
 
-# Doc
+# Doc — generate API documentation.
+#
+# Generate + extract:
+#   docker build --target io-doc -t flutter_map_sld_io:doc .
+#   docker run --rm flutter_map_sld_io:doc | tar -xzf -
 FROM io-base AS io-doc
 RUN dart doc
+RUN test -f doc/api/index.html && echo "API docs generated: $(find doc/api -name '*.html' | wc -l) HTML files"
+RUN tar -czf /doc-api.tar.gz doc/api
+ENTRYPOINT ["cat", "/doc-api.tar.gz"]
 
 # Publish dry-run
 FROM io-base AS io-publish-check
@@ -166,9 +180,16 @@ RUN flutter analyze
 FROM flutter-map-base AS flutter-map-test
 RUN flutter test
 
-# Doc
+# Doc — generate API documentation.
+#
+# Generate + extract:
+#   docker build --target flutter-map-doc -t flutter_map_sld_flutter_map:doc .
+#   docker run --rm flutter_map_sld_flutter_map:doc | tar -xzf -
 FROM flutter-map-base AS flutter-map-doc
 RUN dart doc
+RUN test -f doc/api/index.html && echo "API docs generated: $(find doc/api -name '*.html' | wc -l) HTML files"
+RUN tar -czf /doc-api.tar.gz doc/api
+ENTRYPOINT ["cat", "/doc-api.tar.gz"]
 
 # Coverage report.
 # flutter test --coverage produces coverage/lcov.info directly.
