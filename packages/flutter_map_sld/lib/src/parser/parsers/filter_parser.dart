@@ -1,3 +1,4 @@
+import 'package:gml4dart/gml4dart.dart';
 import 'package:xml/xml.dart';
 
 import '../../model/expression.dart';
@@ -67,6 +68,35 @@ Filter? _parseFilterOperator(
     case 'Not':
       return _parseNot(element, issues, path);
 
+    // Spatial operators
+    case 'BBOX':
+      return _parseBBox(element, issues, path);
+    case 'Intersects':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => Intersects(propertyName: pn, geometry: g));
+    case 'Within':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => Within(propertyName: pn, geometry: g));
+    case 'Contains':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => Contains(propertyName: pn, geometry: g));
+    case 'Touches':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => Touches(propertyName: pn, geometry: g));
+    case 'Crosses':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => Crosses(propertyName: pn, geometry: g));
+    case 'Overlaps':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => SpatialOverlaps(propertyName: pn, geometry: g));
+    case 'Disjoint':
+      return _parseSpatialBinary(element, issues, path,
+          (pn, g) => Disjoint(propertyName: pn, geometry: g));
+    case 'DWithin':
+      return _parseSpatialDistance(element, issues, path, isDWithin: true);
+    case 'Beyond':
+      return _parseSpatialDistance(element, issues, path, isDWithin: false);
+
     default:
       issues.add(SldParseIssue(
         severity: SldIssueSeverity.info,
@@ -77,6 +107,10 @@ Filter? _parseFilterOperator(
       return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Comparison parsers
+// ---------------------------------------------------------------------------
 
 Filter? _parseComparison(
   XmlElement element,
@@ -155,6 +189,10 @@ Filter? _parseNull(
   return PropertyIsNull(expression: expr);
 }
 
+// ---------------------------------------------------------------------------
+// Logical parsers
+// ---------------------------------------------------------------------------
+
 Filter? _parseLogical(
   XmlElement element,
   List<SldParseIssue> issues,
@@ -182,4 +220,166 @@ Filter? _parseNot(
     if (f != null) return Not(filter: f);
   }
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// Spatial filter parsers
+// ---------------------------------------------------------------------------
+
+/// Known GML geometry element local names.
+const _gmlGeometryNames = {
+  'Point', 'LineString', 'LinearRing', 'Polygon', 'Envelope', 'Box',
+  'Curve', 'Surface', 'MultiPoint', 'MultiLineString', 'MultiPolygon',
+  'MultiGeometry', 'MultiSurface', 'MultiCurve',
+};
+
+/// Parses a GML geometry element via `gml4dart`.
+GmlGeometry? _parseGmlGeometry(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path,
+) {
+  final result = GmlDocument.parseXmlString(element.toXmlString());
+  if (result.hasErrors) {
+    for (final issue in result.issues) {
+      issues.add(SldParseIssue(
+        severity: SldIssueSeverity.warning,
+        code: 'gml-parse-error',
+        message: issue.message,
+        location: path,
+      ));
+    }
+    return null;
+  }
+  final root = result.document?.root;
+  if (root is! GmlGeometry) return null;
+  return root;
+}
+
+/// Finds the optional `<PropertyName>` and the first GML geometry child.
+({String? propertyName, GmlGeometry? geometry}) _parseSpatialChildren(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path,
+) {
+  String? propertyName;
+  GmlGeometry? geometry;
+
+  for (final child in element.childElements) {
+    if (child.localName == 'PropertyName') {
+      propertyName = child.innerText.trim();
+    } else if (_gmlGeometryNames.contains(child.localName)) {
+      geometry ??= _parseGmlGeometry(child, issues, '$path/${child.localName}');
+    }
+  }
+
+  return (propertyName: propertyName, geometry: geometry);
+}
+
+/// Parses `<BBOX>` — expects optional PropertyName + Envelope/Box.
+Filter? _parseBBox(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path,
+) {
+  final children = _parseSpatialChildren(element, issues, path);
+  final geom = children.geometry;
+
+  GmlEnvelope? envelope;
+  if (geom is GmlEnvelope) {
+    envelope = geom;
+  } else if (geom is GmlBox) {
+    envelope = GmlEnvelope(
+        lowerCorner: geom.lowerCorner, upperCorner: geom.upperCorner);
+  }
+
+  if (envelope == null) {
+    issues.add(SldParseIssue(
+      severity: SldIssueSeverity.warning,
+      code: 'bbox-missing-envelope',
+      message: 'BBOX requires an Envelope or Box geometry child',
+      location: path,
+    ));
+    return null;
+  }
+
+  return BBox(propertyName: children.propertyName, envelope: envelope);
+}
+
+/// Parses a binary spatial filter (Intersects, Within, Contains, etc.).
+Filter? _parseSpatialBinary(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path,
+  Filter Function(String?, GmlGeometry) builder,
+) {
+  final children = _parseSpatialChildren(element, issues, path);
+  final geom = children.geometry;
+
+  if (geom == null) {
+    issues.add(SldParseIssue(
+      severity: SldIssueSeverity.warning,
+      code: 'spatial-filter-missing-geometry',
+      message: '${element.localName} requires a GML geometry child',
+      location: path,
+    ));
+    return null;
+  }
+
+  return builder(children.propertyName, geom);
+}
+
+/// Parses `<DWithin>` or `<Beyond>` — spatial + distance + units.
+Filter? _parseSpatialDistance(
+  XmlElement element,
+  List<SldParseIssue> issues,
+  String path, {
+  required bool isDWithin,
+}) {
+  final children = _parseSpatialChildren(element, issues, path);
+  final geom = children.geometry;
+
+  if (geom == null) {
+    issues.add(SldParseIssue(
+      severity: SldIssueSeverity.warning,
+      code: 'distance-filter-missing-geometry',
+      message: '${element.localName} requires a GML geometry child',
+      location: path,
+    ));
+    return null;
+  }
+
+  final distanceEl = findChild(element, 'Distance');
+  final distanceText = distanceEl?.innerText.trim();
+  final distance = distanceText != null ? double.tryParse(distanceText) : null;
+
+  if (distance == null) {
+    issues.add(SldParseIssue(
+      severity: SldIssueSeverity.warning,
+      code: 'distance-filter-missing-distance',
+      message: '${element.localName} requires a <Distance> child',
+      location: path,
+    ));
+    return null;
+  }
+
+  final units = distanceEl != null
+      ? (stringAttr(distanceEl, 'units') ?? stringAttr(distanceEl, 'uom') ?? '')
+      : '';
+
+  if (isDWithin) {
+    return DWithin(
+      propertyName: children.propertyName,
+      geometry: geom,
+      distance: distance,
+      units: units,
+    );
+  } else {
+    return Beyond(
+      propertyName: children.propertyName,
+      geometry: geom,
+      distance: distance,
+      units: units,
+    );
+  }
 }

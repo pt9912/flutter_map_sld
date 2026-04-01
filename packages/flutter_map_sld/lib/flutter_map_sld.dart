@@ -5,6 +5,7 @@
 /// Flutter, or `flutter_map`.
 library flutter_map_sld;
 
+export 'src/eval/spatial_ops.dart';
 export 'src/interop/legend/legend_model.dart';
 export 'src/model/channel_selection.dart';
 export 'src/model/color_map.dart';

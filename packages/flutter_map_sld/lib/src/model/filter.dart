@@ -1,11 +1,18 @@
+import 'package:gml4dart/gml4dart.dart';
+
+import '../eval/spatial_ops.dart';
 import 'expression.dart';
 
 /// An OGC filter that can be evaluated against feature properties.
+///
+/// The optional [geometry] parameter supplies the feature's geometry for
+/// spatial filter evaluation. Non-spatial filters ignore it.
 sealed class Filter {
   const Filter();
 
-  /// Evaluates this filter against the given [properties].
-  bool evaluate(Map<String, dynamic> properties);
+  /// Evaluates this filter against the given [properties] and optional
+  /// feature [geometry].
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry});
 }
 
 // ---------------------------------------------------------------------------
@@ -33,7 +40,7 @@ final class PropertyIsEqualTo extends ComparisonFilter {
   });
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final a = expression1.evaluate(properties);
     final b = expression2.evaluate(properties);
     if (a == null || b == null) return false;
@@ -58,7 +65,7 @@ final class PropertyIsNotEqualTo extends ComparisonFilter {
   });
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final a = expression1.evaluate(properties);
     final b = expression2.evaluate(properties);
     if (a == null || b == null) return false;
@@ -83,7 +90,7 @@ final class PropertyIsLessThan extends ComparisonFilter {
   });
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final cmp = _compareNum(expression1, expression2, properties);
     return cmp < 0 && cmp != _incompatible;
   }
@@ -106,7 +113,7 @@ final class PropertyIsGreaterThan extends ComparisonFilter {
   });
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final cmp = _compareNum(expression1, expression2, properties);
     return cmp > 0 && cmp != _incompatible;
   }
@@ -129,7 +136,7 @@ final class PropertyIsLessThanOrEqualTo extends ComparisonFilter {
   });
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final cmp = _compareNum(expression1, expression2, properties);
     return cmp <= 0 && cmp != _incompatible;
   }
@@ -152,7 +159,7 @@ final class PropertyIsGreaterThanOrEqualTo extends ComparisonFilter {
   });
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final cmp = _compareNum(expression1, expression2, properties);
     return cmp >= 0 && cmp != _incompatible;
   }
@@ -184,7 +191,7 @@ final class PropertyIsBetween extends Filter {
   final Expression upperBoundary;
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final v = expression.evaluate(properties);
     final lo = lowerBoundary.evaluate(properties);
     final hi = upperBoundary.evaluate(properties);
@@ -220,7 +227,7 @@ final class PropertyIsLike extends Filter {
   final String escapeChar;
 
   @override
-  bool evaluate(Map<String, dynamic> properties) {
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
     final v = expression.evaluate(properties);
     if (v is! String) return false;
     final regex = _toRegex(pattern, wildCard, singleChar, escapeChar);
@@ -248,7 +255,7 @@ final class PropertyIsNull extends Filter {
   final Expression expression;
 
   @override
-  bool evaluate(Map<String, dynamic> properties) =>
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) =>
       expression.evaluate(properties) == null;
 
   @override
@@ -270,8 +277,8 @@ final class And extends Filter {
   final List<Filter> filters;
 
   @override
-  bool evaluate(Map<String, dynamic> properties) =>
-      filters.every((f) => f.evaluate(properties));
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) =>
+      filters.every((f) => f.evaluate(properties, geometry: geometry));
 
   @override
   bool operator ==(Object other) =>
@@ -288,8 +295,8 @@ final class Or extends Filter {
   final List<Filter> filters;
 
   @override
-  bool evaluate(Map<String, dynamic> properties) =>
-      filters.any((f) => f.evaluate(properties));
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) =>
+      filters.any((f) => f.evaluate(properties, geometry: geometry));
 
   @override
   bool operator ==(Object other) =>
@@ -306,8 +313,8 @@ final class Not extends Filter {
   final Filter filter;
 
   @override
-  bool evaluate(Map<String, dynamic> properties) =>
-      !filter.evaluate(properties);
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) =>
+      !filter.evaluate(properties, geometry: geometry);
 
   @override
   bool operator ==(Object other) =>
@@ -315,6 +322,260 @@ final class Not extends Filter {
 
   @override
   int get hashCode => filter.hashCode;
+}
+
+// ---------------------------------------------------------------------------
+// Spatial filters
+// ---------------------------------------------------------------------------
+
+/// Base for spatial filter operators.
+sealed class SpatialFilter extends Filter {
+  const SpatialFilter({this.propertyName, required this.geometry});
+
+  /// Optional geometry property name. Null means the default geometry.
+  final String? propertyName;
+
+  /// The reference geometry from the SLD document.
+  final GmlGeometry geometry;
+}
+
+final class BBox extends SpatialFilter {
+  const BBox({super.propertyName, required GmlEnvelope envelope})
+      : super(geometry: envelope);
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return envelopeIntersects(
+        geometryEnvelope(geometry), this.geometry as GmlEnvelope);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BBox &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+final class Intersects extends SpatialFilter {
+  const Intersects({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryIntersects(geometry, this.geometry);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Intersects &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+final class Within extends SpatialFilter {
+  const Within({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryWithin(geometry, this.geometry);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Within &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+final class Contains extends SpatialFilter {
+  const Contains({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryWithin(this.geometry, geometry);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Contains &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+final class Touches extends SpatialFilter {
+  const Touches({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    // Simplified: uses envelope intersection as approximation.
+    return envelopeIntersects(
+        geometryEnvelope(geometry), geometryEnvelope(this.geometry));
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Touches &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+final class Crosses extends SpatialFilter {
+  const Crosses({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryIntersects(geometry, this.geometry);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Crosses &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+/// Named `SpatialOverlaps` to avoid collision with Flutter's `Overlaps`.
+final class SpatialOverlaps extends SpatialFilter {
+  const SpatialOverlaps({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryIntersects(geometry, this.geometry);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SpatialOverlaps &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+final class Disjoint extends SpatialFilter {
+  const Disjoint({super.propertyName, required super.geometry});
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return !geometryIntersects(geometry, this.geometry);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Disjoint &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry);
+}
+
+// ---------------------------------------------------------------------------
+// Distance-based spatial filters
+// ---------------------------------------------------------------------------
+
+/// Base for distance-based spatial filters.
+sealed class DistanceFilter extends SpatialFilter {
+  const DistanceFilter({
+    super.propertyName,
+    required super.geometry,
+    required this.distance,
+    this.units = '',
+  });
+
+  /// Distance threshold in coordinate units.
+  final double distance;
+
+  /// Distance units (informational; CRS handling is the caller's concern).
+  final String units;
+}
+
+final class DWithin extends DistanceFilter {
+  const DWithin({
+    super.propertyName,
+    required super.geometry,
+    required super.distance,
+    super.units,
+  });
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryDistance(geometry, this.geometry) <= distance;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DWithin &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry &&
+          distance == other.distance &&
+          units == other.units;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry, distance, units);
+}
+
+final class Beyond extends DistanceFilter {
+  const Beyond({
+    super.propertyName,
+    required super.geometry,
+    required super.distance,
+    super.units,
+  });
+
+  @override
+  bool evaluate(Map<String, dynamic> properties, {GmlGeometry? geometry}) {
+    if (geometry == null) return false;
+    return geometryDistance(geometry, this.geometry) > distance;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Beyond &&
+          propertyName == other.propertyName &&
+          geometry == other.geometry &&
+          distance == other.distance &&
+          units == other.units;
+
+  @override
+  int get hashCode => Object.hash(propertyName, geometry, distance, units);
 }
 
 // ---------------------------------------------------------------------------

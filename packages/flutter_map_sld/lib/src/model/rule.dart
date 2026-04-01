@@ -1,3 +1,5 @@
+import 'package:gml4dart/gml4dart.dart';
+
 import 'filter.dart';
 import 'line_symbolizer.dart';
 import 'point_symbolizer.dart';
@@ -63,16 +65,18 @@ class Rule {
   }
 
   /// Whether this rule applies to the given [properties] and optional
-  /// [scaleDenominator]. Combines filter and scale checks.
+  /// [scaleDenominator] and feature [geometry].
+  /// Combines filter and scale checks.
   bool appliesTo(
     Map<String, dynamic> properties, {
     double? scaleDenominator,
+    GmlGeometry? geometry,
   }) {
     if (scaleDenominator != null && !appliesAtScale(scaleDenominator)) {
       return false;
     }
     final f = filter;
-    if (f != null && !f.evaluate(properties)) return false;
+    if (f != null && !f.evaluate(properties, geometry: geometry)) return false;
     return true;
   }
 

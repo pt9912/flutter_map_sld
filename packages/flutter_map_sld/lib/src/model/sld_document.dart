@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:gml4dart/gml4dart.dart';
+
 import '../parser/sld_parser.dart' as parser;
 import '_equality.dart';
 import 'issue.dart';
@@ -114,12 +116,14 @@ class SldDocument {
       _collectSymbolizers((rule) => rule.textSymbolizer);
 
   /// Returns all rules that match the given [properties] and optional
-  /// [scaleDenominator], wrapped in [MatchedRule] with full context.
+  /// [scaleDenominator] and feature [geometry], wrapped in [MatchedRule]
+  /// with full context.
   ///
   /// Rule order is preserved (drawing order semantics).
   List<MatchedRule> selectMatchingRules(
     Map<String, dynamic> properties, {
     double? scaleDenominator,
+    GmlGeometry? geometry,
   }) {
     final result = <MatchedRule>[];
     for (final layer in layers) {
@@ -127,7 +131,7 @@ class SldDocument {
         for (final fts in style.featureTypeStyles) {
           for (final rule in fts.rules) {
             if (rule.appliesTo(properties,
-                scaleDenominator: scaleDenominator)) {
+                scaleDenominator: scaleDenominator, geometry: geometry)) {
               result.add(MatchedRule(
                 layer: layer,
                 style: style,
