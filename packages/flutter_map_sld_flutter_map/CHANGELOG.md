@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Bump flutter_map_sld dependency to `^0.5.0`.
+
 ## 0.1.1
 
 - Added dartdoc comments to all public classes, constructors, fields, and enum values.
