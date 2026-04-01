@@ -1,3 +1,9 @@
+## 0.1.1
+
+- Added dartdoc comments to all public classes, constructors, fields, and enum values.
+- Added library-level documentation.
+- Added example file for pub.dev scoring.
+
 ## 0.1.0
 
 - Initial release: Flutter and flutter_map adapters for SLD/SE styles.

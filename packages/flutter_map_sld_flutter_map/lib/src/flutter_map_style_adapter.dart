@@ -158,17 +158,22 @@ class FlutterMapStyleAdapter {
 
 /// The adapted style output for one matched rule.
 class FlutterMapMatchedStyle {
+  /// Creates a matched style wrapping the [matchedRule] context and adapted [style].
   const FlutterMapMatchedStyle({
     required this.matchedRule,
     required this.style,
   });
 
+  /// The original matched rule with layer/style context.
   final MatchedRule matchedRule;
+
+  /// The adapted style DTOs for this rule.
   final FlutterMapRuleStyle style;
 }
 
 /// All adapted style outputs that may be attached to a single rule.
 class FlutterMapRuleStyle {
+  /// Creates a rule style with optional symbolizer outputs.
   const FlutterMapRuleStyle({
     this.point,
     this.line,
@@ -176,25 +181,37 @@ class FlutterMapRuleStyle {
     this.text,
   });
 
+  /// Point/marker style, if the rule contains a PointSymbolizer.
   final FlutterMapPointStyle? point;
+
+  /// Line style, if the rule contains a LineSymbolizer.
   final FlutterMapLineStyle? line;
+
+  /// Polygon style, if the rule contains a PolygonSymbolizer.
   final FlutterMapPolygonStyle? polygon;
+
+  /// Text style, if the rule contains a TextSymbolizer.
   final FlutterMapTextStyle? text;
 }
 
 /// A reusable fill style.
 class FlutterMapFillStyle {
+  /// Creates a fill style with optional [color] and [opacity].
   const FlutterMapFillStyle({
     this.color,
     this.opacity,
   });
 
+  /// Fill color derived from the SLD ARGB value.
   final Color? color;
+
+  /// Fill opacity from 0.0 (transparent) to 1.0 (opaque).
   final double? opacity;
 }
 
 /// A reusable stroke style.
 class FlutterMapStrokeStyle {
+  /// Creates a stroke style with optional visual properties.
   FlutterMapStrokeStyle({
     this.color,
     this.width,
@@ -204,27 +221,52 @@ class FlutterMapStrokeStyle {
     this.join,
   }) : dashArray = dashArray == null ? null : List.unmodifiable(dashArray);
 
+  /// Stroke color derived from the SLD ARGB value.
   final Color? color;
+
+  /// Stroke width in pixels.
   final double? width;
+
+  /// Stroke opacity from 0.0 (transparent) to 1.0 (opaque).
   final double? opacity;
+
+  /// Dash pattern as alternating dash/gap lengths (unmodifiable).
   final List<double>? dashArray;
+
+  /// Line cap style.
   final StrokeCap? cap;
+
+  /// Line join style.
   final StrokeJoin? join;
 }
 
 /// Well-known mark names mapped to a stable Dart enum.
 enum FlutterMapMarkShape {
+  /// Square mark shape.
   square,
+
+  /// Circle mark shape.
   circle,
+
+  /// Triangle mark shape.
   triangle,
+
+  /// Star mark shape.
   star,
+
+  /// Cross mark shape.
   cross,
+
+  /// X mark shape.
   x,
+
+  /// Unknown or unsupported mark shape.
   unknown,
 }
 
 /// Point/marker styling translated from an SLD [PointSymbolizer].
 class FlutterMapPointStyle {
+  /// Creates a point style with optional visual properties.
   const FlutterMapPointStyle({
     this.size,
     this.rotation,
@@ -236,38 +278,60 @@ class FlutterMapPointStyle {
     this.externalGraphicFormat,
   });
 
+  /// Symbol size in pixels.
   final double? size;
+
+  /// Rotation angle in degrees (clockwise).
   final double? rotation;
+
+  /// Graphic opacity from 0.0 to 1.0.
   final double? opacity;
+
+  /// Well-known mark shape.
   final FlutterMapMarkShape? markShape;
+
+  /// Fill style for the mark interior.
   final FlutterMapFillStyle? fill;
+
+  /// Stroke style for the mark outline.
   final FlutterMapStrokeStyle? stroke;
+
+  /// URL of an external graphic image.
   final String? externalGraphicUrl;
+
+  /// MIME type of the external graphic (e.g. `image/png`).
   final String? externalGraphicFormat;
 }
 
 /// Line styling translated from an SLD [LineSymbolizer].
 class FlutterMapLineStyle {
+  /// Creates a line style with optional [stroke].
   const FlutterMapLineStyle({
     this.stroke,
   });
 
+  /// Stroke style for the line.
   final FlutterMapStrokeStyle? stroke;
 }
 
 /// Polygon styling translated from an SLD [PolygonSymbolizer].
 class FlutterMapPolygonStyle {
+  /// Creates a polygon style with optional [fill] and [stroke].
   const FlutterMapPolygonStyle({
     this.fill,
     this.stroke,
   });
 
+  /// Fill style for the polygon interior.
   final FlutterMapFillStyle? fill;
+
+  /// Stroke style for the polygon outline.
   final FlutterMapStrokeStyle? stroke;
 }
 
 /// Point-placement hints translated from an SLD [PointPlacement].
 class FlutterMapPointPlacementStyle {
+  /// Creates point-placement hints with optional anchor, displacement, and rotation.
   const FlutterMapPointPlacementStyle({
     this.anchorPointX,
     this.anchorPointY,
@@ -276,24 +340,36 @@ class FlutterMapPointPlacementStyle {
     this.rotation,
   });
 
+  /// Anchor X (0.0 = left, 0.5 = center, 1.0 = right).
   final double? anchorPointX;
+
+  /// Anchor Y (0.0 = bottom, 0.5 = middle, 1.0 = top).
   final double? anchorPointY;
+
+  /// Displacement X in pixels.
   final double? displacementX;
+
+  /// Displacement Y in pixels.
   final double? displacementY;
+
+  /// Rotation angle in degrees.
   final double? rotation;
 }
 
 /// Line-placement hints translated from an SLD [LinePlacement].
 class FlutterMapLinePlacementStyle {
+  /// Creates line-placement hints with optional [perpendicularOffset].
   const FlutterMapLinePlacementStyle({
     this.perpendicularOffset,
   });
 
+  /// Offset perpendicular to the line in pixels.
   final double? perpendicularOffset;
 }
 
 /// Text styling translated from an SLD [TextSymbolizer].
 class FlutterMapTextStyle {
+  /// Creates a text style with optional label, fill, halo, and placement.
   const FlutterMapTextStyle({
     this.text,
     this.fill,
@@ -304,12 +380,25 @@ class FlutterMapTextStyle {
     this.linePlacement,
   });
 
+  /// The evaluated label text.
   final String? text;
+
+  /// Fill style for the label text.
   final FlutterMapFillStyle? fill;
+
+  /// Flutter [TextStyle] derived from SLD font parameters.
   final TextStyle? textStyle;
+
+  /// Fill style for the text halo (outline).
   final FlutterMapFillStyle? haloFill;
+
+  /// Halo radius in pixels.
   final double? haloRadius;
+
+  /// Point-based label placement hints.
   final FlutterMapPointPlacementStyle? pointPlacement;
+
+  /// Line-following label placement hints.
   final FlutterMapLinePlacementStyle? linePlacement;
 }
 

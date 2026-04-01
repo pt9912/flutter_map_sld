@@ -2,7 +2,7 @@ name: flutter_map_sld_flutter_map
 description: >-
   Flutter and flutter_map adapters for flutter_map_sld. Current scope: adapt
   parsed SLD vector and text styles into flutter_map-friendly style DTOs.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/pt9912/flutter_map_sld
 repository: https://github.com/pt9912/flutter_map_sld
 topics:
